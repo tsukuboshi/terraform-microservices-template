@@ -1,0 +1,38 @@
+[
+  {
+    "essential": true,
+    "name": "${MAIN_CONTAINER_NAME}",
+    "image": "${MAIN_IMAGE_URL}",
+    "portMappings": [
+      {
+        "protocol": "tcp",
+        "containerPort": 80
+      }
+    ],
+    "memoryReservation": 100,
+    "logConfiguration": {
+      "logDriver": "awsfirelens"
+    }
+  },
+  {
+    "essential": true,
+    "name": "${FIRELENS_CONTAINER_NAME}",
+    "image": "${FIRELENS_IMAGE_URL}",
+    "memoryReservation": 50,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${LOG_GROUP}",
+        "awslogs-region": "${AWS_REGION}",
+        "awslogs-stream-prefix": "httpd-sidecar"
+      }
+    },
+    "firelensConfiguration": {
+      "type": "fluentbit",
+      "options": {
+        "config-file-type": "file",
+        "config-file-value": "/fluent-bit/etc/extra.conf"
+      }
+    }
+  }
+]
