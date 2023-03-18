@@ -210,27 +210,145 @@ module "internetgateway" {
   route_table_id = module.public_routetable.route_table_id
 }
 
+# module "public_1a_natgateway" {
+#   source         = "../../modules/natgateway"
+#   system         = var.system
+#   project        = var.project
+#   environment    = var.environment
+#   resourcetype   = "${var.network_rsrc_type_public}-${var.az_short_name_1a}"
+#   subnet_id      = module.public_1a_subnet.subnet_id
+#   igw_id         = module.internetgateway.igw_id
+#   route_table_id = module.private_1a_routetable.route_table_id
+# }
 
-module "public_1a_natgateway" {
-  source         = "../../modules/natgateway"
-  system         = var.system
-  project        = var.project
-  environment    = var.environment
-  resourcetype   = "${var.network_rsrc_type_public}-${var.az_short_name_1a}"
-  subnet_id      = module.public_1a_subnet.subnet_id
-  igw_id         = module.internetgateway.internet_route_id
-  route_table_id = module.private_1a_routetable.route_table_id
+# module "public_1c_natgateway" {
+#   source         = "../../modules/natgateway"
+#   system         = var.system
+#   project        = var.project
+#   environment    = var.environment
+#   resourcetype   = "${var.network_rsrc_type_public}-${var.az_short_name_1c}"
+#   subnet_id      = module.public_1c_subnet.subnet_id
+#   igw_id         = module.internetgateway.igw_id
+#   route_table_id = module.private_1c_routetable.route_table_id
+# }
+
+module "s3_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "s3"
+  vpc_endpoint_type   = "Gateway"
+  service_name        = "com.amazonaws.ap-northeast-1.s3"
+  vpc_id              = module.vpc.vpc_id
+  is_gateway_endpoint = true
+  route_table_1a_id   = module.private_1a_routetable.route_table_id
+  route_table_1c_id   = module.private_1c_routetable.route_table_id
 }
 
-module "public_1c_natgateway" {
-  source         = "../../modules/natgateway"
-  system         = var.system
-  project        = var.project
-  environment    = var.environment
-  resourcetype   = "${var.network_rsrc_type_public}-${var.az_short_name_1c}"
-  subnet_id      = module.public_1c_subnet.subnet_id
-  igw_id         = module.internetgateway.internet_route_id
-  route_table_id = module.private_1c_routetable.route_table_id
+module "ecr_dkr_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "ecr-dkr"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.ecr.dkr"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "ecr_api_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "ecr-api"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.ecr.api"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "logs_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "logs"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.logs"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "ssm_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "ssm"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.ssm"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "ssmmessages_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "ssmmessages"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.ssmmessages"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "ec2messages_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "ec2messages"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.ec2messages"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "firehose_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "firehose"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.kinesis-firehose"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
 }
 
 module "public_networkacl" {
@@ -299,6 +417,15 @@ module "cache_sg" {
   project      = var.project
   environment  = var.environment
   resourcetype = var.service_rsrc_type_cache
+  vpc_id       = module.vpc.vpc_id
+}
+
+module "endpoint_sg" {
+  source       = "../../modules/securitygroup"
+  system       = var.system
+  project      = var.project
+  environment  = var.environment
+  resourcetype = "endpoint"
   vpc_id       = module.vpc.vpc_id
 }
 
@@ -426,6 +553,32 @@ module "cache_sg_egress_rule_all" {
   project             = var.project
   environment         = var.environment
   security_group_id   = module.cache_sg.security_group_id
+  sg_rule_type        = "egress"
+  sg_rule_protocol    = -1
+  sg_rule_from_port   = 0
+  sg_rule_to_port     = 0
+  sg_rule_cidr_blocks = ["0.0.0.0/0"]
+}
+
+module "endpoint_sg_ingress_rule_https" {
+  source              = "../../modules/securitygrouprule"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  security_group_id   = module.endpoint_sg.security_group_id
+  sg_rule_type        = "ingress"
+  sg_rule_protocol    = "tcp"
+  sg_rule_from_port   = 443
+  sg_rule_to_port     = 443
+  sg_rule_cidr_blocks = [var.vpc_cidr_block]
+}
+
+module "endpoint_sg_egress_rule_all" {
+  source              = "../../modules/securitygrouprule"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  security_group_id   = module.endpoint_sg.security_group_id
   sg_rule_type        = "egress"
   sg_rule_protocol    = -1
   sg_rule_from_port   = 0
