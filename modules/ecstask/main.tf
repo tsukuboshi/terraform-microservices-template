@@ -14,8 +14,8 @@ resource "aws_ecs_task_definition" "tf_ecs_task" {
   requires_compatibilities = ["FARGATE"]
   container_definitions = templatefile(var.container_definitions_file,
     {
-      FRONTEND_CONTAINER_NAME = "${var.frontend_container_name}",
-      FRONTEND_IMAGE_URL      = "${var.ecr_repository_url}:${var.frontend_image_name}",
+      FRONTEND_CONTAINER_NAME = "${var.app_container_name}",
+      FRONTEND_IMAGE_URL      = "${var.ecr_repository_url}:${var.app_image_name}",
       FIRELENS_CONTAINER_NAME = "${var.firelens_container_name}",
       FIRELENS_IMAGE_URL      = "${var.ecr_repository_url}:${var.firelens_image_name}",
       CW_LOG_GROUP            = "${var.error_log_group_name}",
@@ -24,5 +24,5 @@ resource "aws_ecs_task_definition" "tf_ecs_task" {
     }
   )
 
-  depends_on = [var.ecr_frontend_push_id, var.ecr_firelens_push_id]
+  depends_on = [var.ecr_app_push_id, var.ecr_firelens_push_id]
 }

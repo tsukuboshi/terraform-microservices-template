@@ -26,9 +26,9 @@ variable "container_definitions_file" {}
 
 variable "ecr_repository_url" {}
 
-variable "frontend_image_name" {}
+variable "app_image_name" {}
 
-variable "frontend_container_name" {}
+variable "app_container_name" {}
 
 variable "firelens_image_name" {}
 
@@ -38,7 +38,7 @@ variable "error_log_group_name" {}
 
 variable "error_log_stream_prefix" {}
 
-variable "ecr_frontend_push_id" {}
+variable "ecr_app_push_id" {}
 
 variable "ecr_firelens_push_id" {}
 

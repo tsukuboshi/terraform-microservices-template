@@ -64,7 +64,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
 
     environment_variable {
       name  = "FRONTEND_CONTAINER_NAME"
-      value = var.frontend_container_name
+      value = var.app_container_name
     }
 
     environment_variable {

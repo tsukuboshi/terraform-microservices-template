@@ -18,7 +18,7 @@ variable "artifact_bucket" {}
 
 variable "codecommit_repository_name" {}
 
-variable "codebuild_frontend_project_id" {}
+variable "codebuild_app_project_id" {}
 
 variable "codebuild_firelens_project_id" {}
 

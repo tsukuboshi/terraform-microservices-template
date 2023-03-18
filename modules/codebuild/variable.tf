@@ -32,7 +32,7 @@ variable "ecs_task_role_arn" {}
 
 variable "ecs_exec_role_arn" {}
 
-variable "frontend_container_name" {}
+variable "app_container_name" {}
 
 variable "firelens_container_name" {}
 

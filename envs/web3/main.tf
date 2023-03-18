@@ -757,15 +757,15 @@ module "docker_start" {
   source = "../../modules/dockerstart"
 }
 
-module "ecr_frontend_push" {
+module "ecr_app_push" {
   source             = "../../modules/dockerpush"
   aws_region         = var.aws_region
   system             = var.system
   project            = var.project
   environment        = var.environment
-  image_name         = var.frontend_image_name
-  container_name     = var.frontend_container_name
-  dockerfile_path    = "src/${var.frontend_image_name}/Dockerfile"
+  image_name         = var.app_image_name
+  container_name     = var.app_container_name
+  dockerfile_path    = "src/${var.app_image_name}/Dockerfile"
   ecr_login_id       = module.ecr_login.ecr_login_id
   docker_start_id    = module.docker_start.docker_start_id
   ecr_repository_url = module.ecr.ecr_repository_url
@@ -836,7 +836,7 @@ module "ecs_service" {
   resourcetype                = var.service_rsrc_type_ecs
   ecs_cluster_arn             = module.ecs_cluster.ecs_cluster_arn
   ecs_service_desired_count   = var.ecs_service_desired_count
-  ecs_container_name          = var.frontend_container_name
+  ecs_container_name          = var.app_container_name
   ecs_container_port          = 80
   associate_public_ip_address = var.has_public_ip_to_computer
   has_blue_green_deployment   = var.has_blue_green_deployment
@@ -859,15 +859,15 @@ module "ecs_task" {
   ecs_task_role_arn          = module.iam_ecs_task_role.iam_role_arn
   ecs_exec_role_arn          = module.iam_ecs_exec_role.iam_role_arn
   container_definitions_file = "src/container_definitions.json"
-  frontend_image_name        = var.frontend_image_name
-  frontend_container_name    = var.frontend_container_name
+  app_image_name             = var.app_image_name
+  app_container_name         = var.app_container_name
   firelens_image_name        = var.firelens_image_name
   firelens_container_name    = var.firelens_container_name
-  error_log_stream_prefix    = "${var.frontend_container_name}_sidecar"
+  error_log_stream_prefix    = "${var.app_container_name}_sidecar"
   ecr_repository_url         = module.ecr.ecr_repository_url
   error_log_group_name       = module.firelens_error_log_group.log_group_name
   ecr_firelens_push_id       = module.ecr_firelens_push.docker_push_id
-  ecr_frontend_push_id       = module.ecr_frontend_push.docker_push_id
+  ecr_app_push_id            = module.ecr_app_push.docker_push_id
   outbound_route_ids         = module.internetgateway.internet_route_id
 }
 
@@ -953,20 +953,20 @@ module "iam_codebuild_role" {
   iam_policy_arn                 = module.iam_codebuild_policy.codebuild_iam_policy_arn
 }
 
-module "codebuild_frontend" {
+module "codebuild_app" {
   source                       = "../../modules/codebuild"
   system                       = var.system
   project                      = var.project
   environment                  = var.environment
-  resourcetype                 = "${var.service_rsrc_type_build}-frontend"
+  resourcetype                 = "${var.service_rsrc_type_build}-app"
   has_blue_green_deployment    = var.has_blue_green_deployment
-  buildspec_bgdeploy_file      = "src/${var.frontend_image_name}/buildspec_bgdeploy.yml"
+  buildspec_bgdeploy_file      = "src/${var.app_image_name}/buildspec_bgdeploy.yml"
   buildspec_rollingupdate_file = "src/buildspec_rollingupdate.yml"
-  container_build_path         = "./${var.frontend_image_name}"
-  codebuild_log_group_name     = module.codebuild_frontend_log_group.log_group_name
-  frontend_container_name      = var.frontend_container_name
+  container_build_path         = "./${var.app_image_name}"
+  codebuild_log_group_name     = module.codebuild_app_log_group.log_group_name
+  app_container_name           = var.app_container_name
   firelens_container_name      = var.firelens_container_name
-  error_log_stream_prefix      = "${var.frontend_container_name}_sidecar"
+  error_log_stream_prefix      = "${var.app_container_name}_sidecar"
   error_log_group_name         = module.firelens_error_log_group.log_group_name
   codebuild_role_arn           = module.iam_codebuild_role.iam_role_arn
   ecr_repository_url           = module.ecr.ecr_repository_url
@@ -975,9 +975,9 @@ module "codebuild_frontend" {
   ecs_exec_role_arn            = module.iam_ecs_exec_role.iam_role_arn
 }
 
-module "codebuild_frontend_log_group" {
+module "codebuild_app_log_group" {
   source         = "../../modules/cloudwatchloggroup"
-  log_group_name = "/aws/codebuild/frontend"
+  log_group_name = "/aws/codebuild/app"
 }
 
 module "codebuild_firelens" {
@@ -991,7 +991,7 @@ module "codebuild_firelens" {
   buildspec_rollingupdate_file = "src/buildspec_rollingupdate.yml"
   container_build_path         = "./${var.firelens_image_name}"
   codebuild_log_group_name     = module.codebuild_firelens_log_group.log_group_name
-  frontend_container_name      = var.frontend_container_name
+  app_container_name           = var.app_container_name
   firelens_container_name      = var.firelens_container_name
   error_log_stream_prefix      = "${var.firelens_container_name}_sidecar"
   error_log_group_name         = module.firelens_error_log_group.log_group_name
@@ -1076,7 +1076,7 @@ module "codepipeline" {
   codepipeline_role_arn         = module.iam_codepipeline_role.iam_role_arn
   artifact_bucket               = module.s3_artifact_bucket.bucket_name
   codecommit_repository_name    = module.codecommit.codecommit_repository_name
-  codebuild_frontend_project_id = module.codebuild_frontend.codebuild_project_id
+  codebuild_app_project_id      = module.codebuild_app.codebuild_project_id
   codebuild_firelens_project_id = module.codebuild_firelens.codebuild_project_id
   ecs_cluster_id                = module.ecs_cluster.ecs_cluster_id
   ecs_service_name              = module.ecs_service.ecs_service_name

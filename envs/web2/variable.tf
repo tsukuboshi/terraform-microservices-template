@@ -221,12 +221,12 @@ variable "waf_rsrc_type_alb" {
 }
 
 # ECR #
-variable "frontend_image_name" {
+variable "app_image_name" {
   default = "httpd"
   type    = string
 }
 
-variable "frontend_container_name" {
+variable "app_container_name" {
   default = "web_server"
   type    = string
 }

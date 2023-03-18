@@ -32,7 +32,7 @@ resource "aws_codepipeline" "tf_codepipeline" {
   }
 
   stage {
-    name = "BuildFrontend"
+    name = "BuildApp"
     action {
       name             = "Build"
       category         = "Build"
@@ -40,10 +40,10 @@ resource "aws_codepipeline" "tf_codepipeline" {
       provider         = "CodeBuild"
       version          = 1
       input_artifacts  = ["SourceArtifact"]
-      output_artifacts = ["BuildArtifactFrontend"]
+      output_artifacts = ["BuildArtifactApp"]
 
       configuration = {
-        ProjectName = var.codebuild_frontend_project_id
+        ProjectName = var.codebuild_app_project_id
       }
     }
   }
@@ -73,12 +73,12 @@ resource "aws_codepipeline" "tf_codepipeline" {
       owner           = "AWS"
       provider        = var.has_blue_green_deployment ? "CodeDeployToECS" : "ECS"
       version         = 1
-      input_artifacts = ["BuildArtifactFrontend", "BuildArtifactFirelens"]
+      input_artifacts = ["BuildArtifactApp", "BuildArtifactFirelens"]
 
       configuration = var.has_blue_green_deployment ? {
         ApplicationName                = var.codedeploy_app_name
         DeploymentGroupName            = var.codedeploy_group_name
-        TaskDefinitionTemplateArtifact = "BuildArtifactFrontend"
+        TaskDefinitionTemplateArtifact = "BuildArtifactApp"
         AppSpecTemplateArtifact        = "BuildArtifactFirelens"
         # AppSpecTemplatePath            = file(var.appspec_file)
         # TaskDefinitionTemplatePath     = file(var.taskdef_file)
