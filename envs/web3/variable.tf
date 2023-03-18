@@ -4,7 +4,6 @@
 #
 # ====================
 
-
 variable "aws_region" {
   default = "ap-northeast-1"
   type    = string
@@ -69,16 +68,6 @@ variable "service_rsrc_type_ecs" {
   type    = string
 }
 
-variable "service_rsrc_type_rds" {
-  default = "rds"
-  type    = string
-}
-
-variable "service_rsrc_type_cache" {
-  default = "cache"
-  type    = string
-}
-
 variable "service_rsrc_type_firehose" {
   default = "firehose"
   type    = string
@@ -110,6 +99,16 @@ variable "service_rsrc_type_pipeline" {
 
 variable "service_rsrc_type_eventbridge" {
   default = "eventbridge"
+  type    = string
+}
+
+variable "service_rsrc_type_rds" {
+  default = "rds"
+  type    = string
+}
+
+variable "service_rsrc_type_cache" {
+  default = "cache"
   type    = string
 }
 
@@ -176,7 +175,7 @@ variable "network_rsrc_type_isolated" {
 }
 
 variable "has_public_ip_to_computer" {
-  default = false
+  default = true
   type    = bool
 }
 
@@ -224,25 +223,19 @@ variable "alb_target_type_ecs" {
   type    = string
 }
 
-variable "alb_tg_rsrc_type_enduser" {
-  default = "enduser"
-  type    = string
-}
-
 # WAF #
 variable "waf_rsrc_type_alb" {
   default = "alb"
   type    = string
 }
 
-
 # ECR #
-variable "main_image_name" {
+variable "frontend_image_name" {
   default = "httpd"
   type    = string
 }
 
-variable "main_container_name" {
+variable "frontend_container_name" {
   default = "web_server"
   type    = string
 }
@@ -257,7 +250,6 @@ variable "firelens_container_name" {
   type    = string
 }
 
-
 # ECS #
 variable "ecs_service_desired_count" {
   default = 2
@@ -268,6 +260,7 @@ variable "has_blue_green_deployment" {
   default = true
   type    = bool
 }
+
 
 # RDS #
 variable "db_instance_count" {

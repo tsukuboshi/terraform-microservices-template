@@ -1,38 +1,37 @@
 [
-  {
-    "essential": true,
-    "name": "${MAIN_CONTAINER_NAME}",
-    "image": "${MAIN_IMAGE_URL}",
-    "portMappings": [
-      {
-        "protocol": "tcp",
-        "containerPort": 80
-      }
-    ],
-    "memoryReservation": 100,
-    "logConfiguration": {
-      "logDriver": "awsfirelens"
-    }
-  },
-  {
-    "essential": true,
-    "name": "${FIRELENS_CONTAINER_NAME}",
-    "image": "${FIRELENS_IMAGE_URL}",
-    "memoryReservation": 50,
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "${LOG_GROUP}",
-        "awslogs-region": "${AWS_REGION}",
-        "awslogs-stream-prefix": "httpd-sidecar"
-      }
-    },
-    "firelensConfiguration": {
-      "type": "fluentbit",
-      "options": {
-        "config-file-type": "file",
-        "config-file-value": "/fluent-bit/etc/extra.conf"
-      }
-    }
-  }
+	{
+		"name": "${FRONTEND_CONTAINER_NAME}",
+		"image": "${FRONTEND_IMAGE_URL}",
+		"essential": true,
+		"portMappings": [
+			{
+				"hostPort": 80,
+				"protocol": "tcp",
+				"containerPort": 80
+			}
+		],
+		"logConfiguration": {
+			"logDriver": "awsfirelens"
+		}
+	},
+	{
+	"name": "${FIRELENS_CONTAINER_NAME}",
+	"image": "${FIRELENS_IMAGE_URL}",
+	"essential": true,
+	"logConfiguration": {
+		"logDriver": "awslogs",
+		"options": {
+			"awslogs-group": "${CW_LOG_GROUP}",
+			"awslogs-region": "${CW_REGION}",
+			"awslogs-stream-prefix": "${CW_LOG_STREAM_PREFIX}"
+		}
+	},
+	"firelensConfiguration": {
+		"type": "fluentbit",
+		"options": {
+				"config-file-type": "file",
+				"config-file-value": "/fluent-bit/etc/extra.conf"
+			}
+		}
+	}
 ]

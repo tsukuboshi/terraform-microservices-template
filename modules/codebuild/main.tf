@@ -63,8 +63,23 @@ resource "aws_codebuild_project" "tf_codebuild" {
 
 
     environment_variable {
-      name  = "MAIN_CONTAINER_NAME"
-      value = var.main_container_name
+      name  = "FRONTEND_CONTAINER_NAME"
+      value = var.frontend_container_name
+    }
+
+    environment_variable {
+      name  = "FIRELENS_CONTAINER_NAME"
+      value = var.firelens_container_name
+    }
+
+    environment_variable {
+      name  = "CW_LOG_GROUP"
+      value = var.error_log_group_name
+    }
+
+    environment_variable {
+      name  = "CW_LOG_STREAM_PREFIX"
+      value = var.error_log_stream_prefix
     }
   }
 }

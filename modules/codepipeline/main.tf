@@ -32,7 +32,7 @@ resource "aws_codepipeline" "tf_codepipeline" {
   }
 
   stage {
-    name = "Build"
+    name = "BuildFrontend"
     action {
       name             = "Build"
       category         = "Build"
@@ -40,10 +40,27 @@ resource "aws_codepipeline" "tf_codepipeline" {
       provider         = "CodeBuild"
       version          = 1
       input_artifacts  = ["SourceArtifact"]
-      output_artifacts = ["BuildArtifact"]
+      output_artifacts = ["BuildArtifactFrontend"]
 
       configuration = {
-        ProjectName = var.codebuild_project_id
+        ProjectName = var.codebuild_frontend_project_id
+      }
+    }
+  }
+
+  stage {
+    name = "BuildFirelens"
+    action {
+      name             = "Build"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = 1
+      input_artifacts  = ["SourceArtifact"]
+      output_artifacts = ["BuildArtifactFirelens"]
+
+      configuration = {
+        ProjectName = var.codebuild_firelens_project_id
       }
     }
   }
@@ -56,15 +73,18 @@ resource "aws_codepipeline" "tf_codepipeline" {
       owner           = "AWS"
       provider        = var.has_blue_green_deployment ? "CodeDeployToECS" : "ECS"
       version         = 1
-      input_artifacts = ["BuildArtifact"]
+      input_artifacts = ["BuildArtifactFrontend", "BuildArtifactFirelens"]
 
       configuration = var.has_blue_green_deployment ? {
         ApplicationName                = var.codedeploy_app_name
         DeploymentGroupName            = var.codedeploy_group_name
-        TaskDefinitionTemplateArtifact = "BuildArtifact"
-        AppSpecTemplateArtifact        = "BuildArtifact"
-        Image1ArtifactName             = "BuildArtifact"
-        Image1ContainerName            = "IMAGE1_NAME"
+        TaskDefinitionTemplateArtifact = "BuildArtifactFrontend"
+        AppSpecTemplateArtifact        = "BuildArtifactFirelens"
+        # AppSpecTemplatePath            = file(var.appspec_file)
+        # TaskDefinitionTemplatePath     = file(var.taskdef_file)
+        Image1ArtifactName  = "BuildArtifact"
+        Image1ContainerName = "IMAGE1_NAME"
+        Image2ContainerName = "IMAGE2_NAME"
         } : {
         ClusterName = var.ecs_cluster_id
         ServiceName = var.ecs_service_name

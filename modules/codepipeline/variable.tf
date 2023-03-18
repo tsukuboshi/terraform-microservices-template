@@ -18,7 +18,9 @@ variable "artifact_bucket" {}
 
 variable "codecommit_repository_name" {}
 
-variable "codebuild_project_id" {}
+variable "codebuild_frontend_project_id" {}
+
+variable "codebuild_firelens_project_id" {}
 
 variable "has_blue_green_deployment" {}
 variable "ecs_cluster_id" {
@@ -34,5 +36,13 @@ variable "codedeploy_app_name" {
 }
 
 variable "codedeploy_group_name" {
+  default = null
+}
+
+variable "appspec_file" {
+  default = null
+}
+
+variable "taskdef_file" {
   default = null
 }

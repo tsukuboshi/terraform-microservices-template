@@ -18,6 +18,8 @@ variable "has_blue_green_deployment" {}
 
 variable "buildspec_bgdeploy_file" {}
 
+variable "container_build_path" {}
+
 variable "buildspec_rollingupdate_file" {}
 
 variable "codebuild_log_group_name" {}
@@ -30,4 +32,10 @@ variable "ecs_task_role_arn" {}
 
 variable "ecs_exec_role_arn" {}
 
-variable "main_container_name" {}
+variable "frontend_container_name" {}
+
+variable "firelens_container_name" {}
+
+variable "error_log_group_name" {}
+
+variable "error_log_stream_prefix" {}
