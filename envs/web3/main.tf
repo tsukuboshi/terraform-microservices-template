@@ -960,9 +960,9 @@ module "codebuild_frontend" {
   environment                  = var.environment
   resourcetype                 = "${var.service_rsrc_type_build}-frontend"
   has_blue_green_deployment    = var.has_blue_green_deployment
-  buildspec_bgdeploy_file      = "src/httpd/buildspec_bgdeploy.yml"
+  buildspec_bgdeploy_file      = "src/${var.frontend_image_name}/buildspec_bgdeploy.yml"
   buildspec_rollingupdate_file = "src/buildspec_rollingupdate.yml"
-  container_build_path         = "./httpd"
+  container_build_path         = "./${var.frontend_image_name}"
   codebuild_log_group_name     = module.codebuild_frontend_log_group.log_group_name
   frontend_container_name      = var.frontend_container_name
   firelens_container_name      = var.firelens_container_name
@@ -987,9 +987,9 @@ module "codebuild_firelens" {
   environment                  = var.environment
   resourcetype                 = "${var.service_rsrc_type_build}-firelens"
   has_blue_green_deployment    = var.has_blue_green_deployment
-  buildspec_bgdeploy_file      = "src/fluentbit/buildspec_bgdeploy.yml"
+  buildspec_bgdeploy_file      = "src/${var.firelens_image_name}/buildspec_bgdeploy.yml"
   buildspec_rollingupdate_file = "src/buildspec_rollingupdate.yml"
-  container_build_path         = "./fluentbit"
+  container_build_path         = "./${var.firelens_image_name}"
   codebuild_log_group_name     = module.codebuild_firelens_log_group.log_group_name
   frontend_container_name      = var.frontend_container_name
   firelens_container_name      = var.firelens_container_name
