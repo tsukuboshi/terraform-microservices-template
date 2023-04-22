@@ -20,6 +20,8 @@ variable "codecommit_repository_name" {}
 
 variable "codebuild_app_project_id" {}
 
+variable "codebuild_firelens_project_id" {}
+
 variable "has_blue_green_deployment" {}
 variable "ecs_cluster_id" {
   default = null

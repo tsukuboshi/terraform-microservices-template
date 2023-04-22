@@ -104,6 +104,54 @@ module "public_1c_subnet" {
   vpc_id                         = module.vpc.vpc_id
 }
 
+module "private_1a_subnet" {
+  source                         = "../../modules/subnet"
+  system                         = var.system
+  project                        = var.project
+  environment                    = var.environment
+  resourcetype                   = "${var.network_rsrc_type_private}-${var.az_short_name_1a}"
+  subnet_cidr_block              = var.private_subnet_1a_cidr_block
+  subnet_map_public_ip_on_launch = false
+  subnet_availability_zone       = var.availability_zone_1a
+  vpc_id                         = module.vpc.vpc_id
+}
+
+module "private_1c_subnet" {
+  source                         = "../../modules/subnet"
+  system                         = var.system
+  project                        = var.project
+  environment                    = var.environment
+  resourcetype                   = "${var.network_rsrc_type_private}-${var.az_short_name_1c}"
+  subnet_cidr_block              = var.private_subnet_1c_cidr_block
+  subnet_map_public_ip_on_launch = false
+  subnet_availability_zone       = var.availability_zone_1c
+  vpc_id                         = module.vpc.vpc_id
+}
+
+module "isolated_1a_subnet" {
+  source                         = "../../modules/subnet"
+  system                         = var.system
+  project                        = var.project
+  environment                    = var.environment
+  resourcetype                   = "${var.network_rsrc_type_isolated}-${var.az_short_name_1a}"
+  subnet_cidr_block              = var.isolated_subnet_1a_cidr_block
+  subnet_map_public_ip_on_launch = false
+  subnet_availability_zone       = var.availability_zone_1a
+  vpc_id                         = module.vpc.vpc_id
+}
+
+module "isolated_1c_subnet" {
+  source                         = "../../modules/subnet"
+  system                         = var.system
+  project                        = var.project
+  environment                    = var.environment
+  resourcetype                   = "${var.network_rsrc_type_isolated}-${var.az_short_name_1c}"
+  subnet_cidr_block              = var.isolated_subnet_1c_cidr_block
+  subnet_map_public_ip_on_launch = false
+  subnet_availability_zone       = var.availability_zone_1c
+  vpc_id                         = module.vpc.vpc_id
+}
+
 module "public_routetable" {
   source        = "../../modules/routetable"
   system        = var.system
@@ -117,6 +165,42 @@ module "public_routetable" {
   subnet_1c_id  = module.public_1c_subnet.subnet_id
 }
 
+
+module "private_1a_routetable" {
+  source        = "../../modules/routetable"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.network_rsrc_type_private}-${var.az_short_name_1a}"
+  vpc_id        = module.vpc.vpc_id
+  has_subnet_1a = true
+  subnet_1a_id  = module.private_1a_subnet.subnet_id
+}
+
+module "private_1c_routetable" {
+  source        = "../../modules/routetable"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.network_rsrc_type_private}-${var.az_short_name_1c}"
+  vpc_id        = module.vpc.vpc_id
+  has_subnet_1c = true
+  subnet_1c_id  = module.private_1c_subnet.subnet_id
+}
+
+module "isolated_routetable" {
+  source        = "../../modules/routetable"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = var.network_rsrc_type_isolated
+  vpc_id        = module.vpc.vpc_id
+  has_subnet_1a = true
+  has_subnet_1c = true
+  subnet_1a_id  = module.isolated_1a_subnet.subnet_id
+  subnet_1c_id  = module.isolated_1c_subnet.subnet_id
+}
+
 module "internetgateway" {
   source         = "../../modules/internetgateway"
   system         = var.system
@@ -124,6 +208,147 @@ module "internetgateway" {
   environment    = var.environment
   vpc_id         = module.vpc.vpc_id
   route_table_id = module.public_routetable.route_table_id
+}
+
+# module "public_1a_natgateway" {
+#   source         = "../../modules/natgateway"
+#   system         = var.system
+#   project        = var.project
+#   environment    = var.environment
+#   resourcetype   = "${var.network_rsrc_type_public}-${var.az_short_name_1a}"
+#   subnet_id      = module.public_1a_subnet.subnet_id
+#   igw_id         = module.internetgateway.igw_id
+#   route_table_id = module.private_1a_routetable.route_table_id
+# }
+
+# module "public_1c_natgateway" {
+#   source         = "../../modules/natgateway"
+#   system         = var.system
+#   project        = var.project
+#   environment    = var.environment
+#   resourcetype   = "${var.network_rsrc_type_public}-${var.az_short_name_1c}"
+#   subnet_id      = module.public_1c_subnet.subnet_id
+#   igw_id         = module.internetgateway.igw_id
+#   route_table_id = module.private_1c_routetable.route_table_id
+# }
+
+module "s3_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "s3"
+  vpc_endpoint_type   = "Gateway"
+  service_name        = "com.amazonaws.ap-northeast-1.s3"
+  vpc_id              = module.vpc.vpc_id
+  is_gateway_endpoint = true
+  route_table_1a_id   = module.private_1a_routetable.route_table_id
+  route_table_1c_id   = module.private_1c_routetable.route_table_id
+}
+
+module "ecr_dkr_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "ecr-dkr"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.ecr.dkr"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "ecr_api_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "ecr-api"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.ecr.api"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "logs_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "logs"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.logs"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "ssm_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "ssm"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.ssm"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "ssmmessages_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "ssmmessages"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.ssmmessages"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "ec2messages_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "ec2messages"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.ec2messages"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
+}
+
+module "firehose_endpoint" {
+  source              = "../../modules/vpcendpoint"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = "firehose"
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.ap-northeast-1.kinesis-firehose"
+  private_dns_enabled = true
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids  = [module.endpoint_sg.security_group_id]
+  is_gateway_endpoint = false
 }
 
 module "public_networkacl" {
@@ -135,6 +360,28 @@ module "public_networkacl" {
   vpc_id       = module.vpc.vpc_id
   subnet_1a_id = module.public_1a_subnet.subnet_id
   subnet_1c_id = module.public_1c_subnet.subnet_id
+}
+
+module "private_networkacl" {
+  source       = "../../modules/networkacl"
+  system       = var.system
+  project      = var.project
+  environment  = var.environment
+  resourcetype = var.network_rsrc_type_private
+  vpc_id       = module.vpc.vpc_id
+  subnet_1a_id = module.private_1a_subnet.subnet_id
+  subnet_1c_id = module.private_1c_subnet.subnet_id
+}
+
+module "isolated_networkacl" {
+  source       = "../../modules/networkacl"
+  system       = var.system
+  project      = var.project
+  environment  = var.environment
+  resourcetype = var.network_rsrc_type_isolated
+  vpc_id       = module.vpc.vpc_id
+  subnet_1a_id = module.isolated_1a_subnet.subnet_id
+  subnet_1c_id = module.isolated_1c_subnet.subnet_id
 }
 
 module "alb_sg" {
@@ -152,6 +399,33 @@ module "ecs_sg" {
   project      = var.project
   environment  = var.environment
   resourcetype = var.service_rsrc_type_ecs
+  vpc_id       = module.vpc.vpc_id
+}
+
+module "rds_sg" {
+  source       = "../../modules/securitygroup"
+  system       = var.system
+  project      = var.project
+  environment  = var.environment
+  resourcetype = var.service_rsrc_type_rds
+  vpc_id       = module.vpc.vpc_id
+}
+
+module "cache_sg" {
+  source       = "../../modules/securitygroup"
+  system       = var.system
+  project      = var.project
+  environment  = var.environment
+  resourcetype = var.service_rsrc_type_cache
+  vpc_id       = module.vpc.vpc_id
+}
+
+module "endpoint_sg" {
+  source       = "../../modules/securitygroup"
+  system       = var.system
+  project      = var.project
+  environment  = var.environment
+  resourcetype = "endpoint"
   vpc_id       = module.vpc.vpc_id
 }
 
@@ -226,6 +500,85 @@ module "ecs_sg_egress_rule_all" {
   project             = var.project
   environment         = var.environment
   security_group_id   = module.ecs_sg.security_group_id
+  sg_rule_type        = "egress"
+  sg_rule_protocol    = -1
+  sg_rule_from_port   = 0
+  sg_rule_to_port     = 0
+  sg_rule_cidr_blocks = ["0.0.0.0/0"]
+}
+
+
+module "rds_sg_ingress_rule_mysql" {
+  source                           = "../../modules/securitygrouprule"
+  system                           = var.system
+  project                          = var.project
+  environment                      = var.environment
+  security_group_id                = module.rds_sg.security_group_id
+  sg_rule_type                     = "ingress"
+  sg_rule_protocol                 = "tcp"
+  sg_rule_from_port                = 3306
+  sg_rule_to_port                  = 3306
+  sg_rule_source_security_group_id = module.ecs_sg.security_group_id
+}
+
+module "rds_sg_egress_rule_all" {
+  source              = "../../modules/securitygrouprule"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  security_group_id   = module.rds_sg.security_group_id
+  sg_rule_type        = "egress"
+  sg_rule_protocol    = -1
+  sg_rule_from_port   = 0
+  sg_rule_to_port     = 0
+  sg_rule_cidr_blocks = ["0.0.0.0/0"]
+}
+
+module "cache_sg_ingress_rule_redis" {
+  source                           = "../../modules/securitygrouprule"
+  system                           = var.system
+  project                          = var.project
+  environment                      = var.environment
+  security_group_id                = module.cache_sg.security_group_id
+  sg_rule_type                     = "ingress"
+  sg_rule_protocol                 = "tcp"
+  sg_rule_from_port                = 6379
+  sg_rule_to_port                  = 6379
+  sg_rule_source_security_group_id = module.ecs_sg.security_group_id
+}
+
+module "cache_sg_egress_rule_all" {
+  source              = "../../modules/securitygrouprule"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  security_group_id   = module.cache_sg.security_group_id
+  sg_rule_type        = "egress"
+  sg_rule_protocol    = -1
+  sg_rule_from_port   = 0
+  sg_rule_to_port     = 0
+  sg_rule_cidr_blocks = ["0.0.0.0/0"]
+}
+
+module "endpoint_sg_ingress_rule_https" {
+  source              = "../../modules/securitygrouprule"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  security_group_id   = module.endpoint_sg.security_group_id
+  sg_rule_type        = "ingress"
+  sg_rule_protocol    = "tcp"
+  sg_rule_from_port   = 443
+  sg_rule_to_port     = 443
+  sg_rule_cidr_blocks = [var.vpc_cidr_block]
+}
+
+module "endpoint_sg_egress_rule_all" {
+  source              = "../../modules/securitygrouprule"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  security_group_id   = module.endpoint_sg.security_group_id
   sg_rule_type        = "egress"
   sg_rule_protocol    = -1
   sg_rule_from_port   = 0
@@ -418,12 +771,27 @@ module "ecr_app_push" {
   ecr_repository_url = module.ecr.ecr_repository_url
 }
 
+module "ecr_firelens_push" {
+  source             = "../../modules/dockerpush"
+  aws_region         = var.aws_region
+  system             = var.system
+  project            = var.project
+  environment        = var.environment
+  image_name         = var.firelens_image_name
+  container_name     = var.firelens_container_name
+  dockerfile_path    = "src/${var.firelens_image_name}/Dockerfile"
+  ecr_login_id       = module.ecr_login.ecr_login_id
+  docker_start_id    = module.docker_start.docker_start_id
+  ecr_repository_url = module.ecr.ecr_repository_url
+}
+
 module "iam_ecs_task_policy" {
   source       = "../../modules/iamecspolicy"
   system       = var.system
   project      = var.project
   environment  = var.environment
   resourcetype = "${var.service_rsrc_type_ecs}-task"
+  firehose_arn = module.firehose.firehose_arn
 }
 
 module "iam_ecs_task_role" {
@@ -480,7 +848,7 @@ module "ecs_service" {
 }
 
 module "ecs_task" {
-  source                     = "../../modules/ecstask"
+  source                     = "../../modules/ecstaskfirelens"
   aws_region                 = var.aws_region
   system                     = var.system
   project                    = var.project
@@ -493,16 +861,70 @@ module "ecs_task" {
   container_definitions_file = "src/container_definitions.json"
   app_image_name             = var.app_image_name
   app_container_name         = var.app_container_name
+  firelens_image_name        = var.firelens_image_name
+  firelens_container_name    = var.firelens_container_name
   error_log_stream_prefix    = "${var.app_container_name}_sidecar"
   ecr_repository_url         = module.ecr.ecr_repository_url
-  error_log_group_name       = module.frontend_error_log_group.log_group_name
+  error_log_group_name       = module.firelens_error_log_group.log_group_name
+  ecr_firelens_push_id       = module.ecr_firelens_push.docker_push_id
   ecr_app_push_id            = module.ecr_app_push.docker_push_id
   outbound_route_ids         = module.internetgateway.internet_route_id
 }
 
-module "frontend_error_log_group" {
+module "firelens_error_log_group" {
   source         = "../../modules/cloudwatchloggroup"
-  log_group_name = "/aws/ecs/frontend/web_server"
+  log_group_name = "/aws/ecs/firelens/log_router"
+}
+
+module "iam_firehose_policy" {
+  source              = "../../modules/iamfirehosepolicy"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  resourcetype        = var.service_rsrc_type_firehose
+  log_bucket_arn      = module.firehose_log_bucket.bucket_arn
+  error_log_group_arn = module.firehose_error_log_group.log_group_arn
+}
+
+module "iam_firehose_role" {
+  source                         = "../../modules/iamrole"
+  system                         = var.system
+  project                        = var.project
+  environment                    = var.environment
+  resourcetype                   = var.service_rsrc_type_firehose
+  iam_role_principal_identifiers = "firehose.amazonaws.com"
+  iam_policy_arn                 = module.iam_firehose_policy.firehose_iam_policy_arn
+}
+
+module "firehose" {
+  source                         = "../../modules/kinesisfirehose"
+  firehose_delivery_stream_name  = "${var.service_rsrc_type_firehose}-delivery-stream"
+  firehose_iam_role_arn          = module.iam_firehose_role.iam_role_arn
+  log_bucket_arn                 = module.firehose_log_bucket.bucket_arn
+  firehose_error_log_group_name  = module.firehose_error_log_group.log_group_name
+  firehose_error_log_stream_name = module.firehose_error_log_stream.log_stream_name
+}
+
+module "firehose_error_log_group" {
+  source         = "../../modules/cloudwatchloggroup"
+  log_group_name = "/aws/firehose/delivery/error"
+}
+
+module "firehose_error_log_stream" {
+  source          = "../../modules/cloudwatchlogstream"
+  log_group_name  = module.firehose_error_log_group.log_group_name
+  log_stream_name = "firehose"
+}
+
+module "firehose_log_bucket" {
+  source                 = "../../modules/s3logbucket"
+  system                 = var.system
+  project                = var.project
+  environment            = var.environment
+  resourcetype           = var.service_rsrc_type_firehose
+  internal               = var.internal
+  object_ownership       = var.disabled_s3_acl
+  object_expiration_days = var.object_expiration_days
 }
 
 module "codecommit" {
@@ -545,7 +967,7 @@ module "codebuild_app" {
   app_container_name           = var.app_container_name
   firelens_container_name      = var.firelens_container_name
   error_log_stream_prefix      = "${var.app_container_name}_sidecar"
-  error_log_group_name         = module.frontend_error_log_group.log_group_name
+  error_log_group_name         = module.firelens_error_log_group.log_group_name
   codebuild_role_arn           = module.iam_codebuild_role.iam_role_arn
   ecr_repository_url           = module.ecr.ecr_repository_url
   ecs_task_definition_family   = module.ecs_task.ecs_task_family
@@ -556,6 +978,33 @@ module "codebuild_app" {
 module "codebuild_app_log_group" {
   source         = "../../modules/cloudwatchloggroup"
   log_group_name = "/aws/codebuild/app"
+}
+
+module "codebuild_firelens" {
+  source                       = "../../modules/codebuild"
+  system                       = var.system
+  project                      = var.project
+  environment                  = var.environment
+  resourcetype                 = "${var.service_rsrc_type_build}-firelens"
+  has_blue_green_deployment    = var.has_blue_green_deployment
+  buildspec_bgdeploy_file      = "src/${var.firelens_image_name}/buildspec_bgdeploy.yml"
+  buildspec_rollingupdate_file = "src/buildspec_rollingupdate.yml"
+  container_build_path         = "./${var.firelens_image_name}"
+  codebuild_log_group_name     = module.codebuild_firelens_log_group.log_group_name
+  app_container_name           = var.app_container_name
+  firelens_container_name      = var.firelens_container_name
+  error_log_stream_prefix      = "${var.firelens_container_name}_sidecar"
+  error_log_group_name         = module.firelens_error_log_group.log_group_name
+  codebuild_role_arn           = module.iam_codebuild_role.iam_role_arn
+  ecr_repository_url           = module.ecr.ecr_repository_url
+  ecs_task_definition_family   = module.ecs_task.ecs_task_family
+  ecs_task_role_arn            = module.iam_ecs_task_role.iam_role_arn
+  ecs_exec_role_arn            = module.iam_ecs_exec_role.iam_role_arn
+}
+
+module "codebuild_firelens_log_group" {
+  source         = "../../modules/cloudwatchloggroup"
+  log_group_name = "/aws/codebuild/firelens"
 }
 
 module "iam_codedeploy_policy" {
@@ -616,22 +1065,23 @@ module "s3_artifact_bucket" {
 }
 
 module "codepipeline" {
-  source                     = "../../modules/codepipeline"
-  system                     = var.system
-  project                    = var.project
-  environment                = var.environment
-  resourcetype               = var.service_rsrc_type_pipeline
-  has_blue_green_deployment  = var.has_blue_green_deployment
-  appspec_file               = "src/appspec.yml"
-  taskdef_file               = "src/taskdef.json"
-  codepipeline_role_arn      = module.iam_codepipeline_role.iam_role_arn
-  artifact_bucket            = module.s3_artifact_bucket.bucket_name
-  codecommit_repository_name = module.codecommit.codecommit_repository_name
-  codebuild_app_project_id   = module.codebuild_app.codebuild_project_id
-  ecs_cluster_id             = module.ecs_cluster.ecs_cluster_id
-  ecs_service_name           = module.ecs_service.ecs_service_name
-  codedeploy_app_name        = module.codedeploy.codedeploy_app_name
-  codedeploy_group_name      = module.codedeploy.codedeploy_group_name
+  source                        = "../../modules/codepipelinefirelens"
+  system                        = var.system
+  project                       = var.project
+  environment                   = var.environment
+  resourcetype                  = var.service_rsrc_type_pipeline
+  has_blue_green_deployment     = var.has_blue_green_deployment
+  appspec_file                  = "src/appspec.yml"
+  taskdef_file                  = "src/taskdef.json"
+  codepipeline_role_arn         = module.iam_codepipeline_role.iam_role_arn
+  artifact_bucket               = module.s3_artifact_bucket.bucket_name
+  codecommit_repository_name    = module.codecommit.codecommit_repository_name
+  codebuild_app_project_id      = module.codebuild_app.codebuild_project_id
+  codebuild_firelens_project_id = module.codebuild_firelens.codebuild_project_id
+  ecs_cluster_id                = module.ecs_cluster.ecs_cluster_id
+  ecs_service_name              = module.ecs_service.ecs_service_name
+  codedeploy_app_name           = module.codedeploy.codedeploy_app_name
+  codedeploy_group_name         = module.codedeploy.codedeploy_group_name
 }
 
 module "iam_eventbridge_policy" {
@@ -662,4 +1112,67 @@ module "eventbridge" {
   codecommit_repository_arn = module.codecommit.codecommit_repository_arn
   codepipeline_arn          = module.codepipeline.codepipeline_arn
   eventbridge_role_arn      = module.iam_eventbridge_role.iam_role_arn
+}
+
+module "iam_rds_policy" {
+  source              = "../../modules/iammanagedpolicy"
+  iam_role_policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+}
+
+module "iam_rds_role" {
+  source                         = "../../modules/iamrole"
+  system                         = var.system
+  project                        = var.project
+  environment                    = var.environment
+  resourcetype                   = var.service_rsrc_type_rds
+  iam_role_principal_identifiers = "monitoring.rds.amazonaws.com"
+  iam_policy_arn                 = module.iam_rds_policy.iam_policy_arn
+}
+
+module "rdsaurora" {
+  source                = "../../modules/rdsaurora"
+  system                = var.system
+  project               = var.project
+  environment           = var.environment
+  internal              = var.internal
+  aurora_engine_version = var.aurora_engine_version
+  security_group_id     = module.rds_sg.security_group_id
+  db_instance_class     = var.db_instance_class
+  # db_name                     = "${var.system}${var.project}${var.environment}db"
+  db_root_name             = var.db_root_name
+  db_root_pass             = var.db_root_pass
+  db_storage_type          = var.db_storage_type
+  db_allocated_storage     = var.db_allocated_storage
+  db_max_allocated_storage = var.db_max_allocated_storage
+  db_storage_encrypted     = var.db_storage_encrypted
+  # db_enabled_cloudwatch_logs_exports = ["error", "slowquery", "audit", "general"]
+  db_backup_retention_period               = var.db_backup_retention_period
+  db_backup_window                         = var.db_backup_window
+  db_maintenance_window                    = var.db_maintenance_window
+  db_performance_insights_enabled          = var.db_performance_insights_enabled
+  db_performance_insights_retention_period = var.db_performance_insights_retention_period
+  db_monitoring_role_arn                   = module.iam_rds_role.iam_role_arn
+  db_monitoring_interval                   = var.db_monitoring_interval
+  db_auto_minor_version_upgrade            = var.db_auto_minor_version_upgrade
+  isolated_1a_subnet_id                    = module.isolated_1a_subnet.subnet_id
+  isolated_1c_subnet_id                    = module.isolated_1c_subnet.subnet_id
+}
+
+module "elasticache" {
+  source                           = "../../modules/elasticache"
+  system                           = var.system
+  project                          = var.project
+  environment                      = var.environment
+  internal                         = var.internal
+  cache_engine_version             = var.cache_engine_version
+  security_group_id                = module.cache_sg.security_group_id
+  cache_node_type                  = var.cache_node_type
+  num_node_groups                  = var.num_node_groups
+  replicas_per_node_group          = var.replicas_per_node_group
+  cache_snapshot_retention_limit   = var.cache_snapshot_retention_limit
+  cache_snapshot_window            = var.cache_snapshot_window
+  cache_maintenance_window         = var.cache_maintenance_window
+  cache_auto_minor_version_upgrade = var.cache_auto_minor_version_upgrade
+  isolated_1a_subnet_id            = module.isolated_1a_subnet.subnet_id
+  isolated_1c_subnet_id            = module.isolated_1c_subnet.subnet_id
 }

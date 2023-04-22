@@ -30,11 +30,17 @@ variable "app_image_name" {}
 
 variable "app_container_name" {}
 
+variable "firelens_image_name" {}
+
+variable "firelens_container_name" {}
+
 variable "error_log_group_name" {}
 
 variable "error_log_stream_prefix" {}
 
 variable "ecr_app_push_id" {}
+
+variable "ecr_firelens_push_id" {}
 
 variable "outbound_route_ids" {
   default = null

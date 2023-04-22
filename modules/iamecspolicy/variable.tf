@@ -12,4 +12,6 @@ variable "environment" {}
 
 variable "resourcetype" {}
 
-variable "firehose_arn" {}
+variable "firehose_arn" {
+  default = null
+}

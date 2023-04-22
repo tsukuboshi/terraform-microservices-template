@@ -4,7 +4,6 @@
 #
 # ====================
 
-
 variable "aws_region" {
   default = "ap-northeast-1"
   type    = string
@@ -100,6 +99,16 @@ variable "service_rsrc_type_pipeline" {
 
 variable "service_rsrc_type_eventbridge" {
   default = "eventbridge"
+  type    = string
+}
+
+variable "service_rsrc_type_rds" {
+  default = "rds"
+  type    = string
+}
+
+variable "service_rsrc_type_cache" {
+  default = "cache"
   type    = string
 }
 
@@ -248,6 +257,144 @@ variable "ecs_service_desired_count" {
 }
 
 variable "has_blue_green_deployment" {
+  default = true
+  type    = bool
+}
+
+
+# RDS #
+variable "db_instance_count" {
+  default = 1
+  type    = number
+}
+
+variable "rds_engine_version" {
+  default = "8.0.20"
+  type    = string
+}
+
+variable "aurora_engine_version" {
+  default = "8.0.mysql_aurora.3.01.0"
+  type    = string
+}
+
+variable "db_instance_class" {
+  default = "db.r6g.large"
+  type    = string
+}
+
+variable "db_root_name" {
+  default = "admin"
+  type    = string
+}
+
+variable "db_root_pass" {
+  # default = "password"
+  type = string
+}
+
+variable "db_storage_type" {
+  default = "gp2"
+  type    = string
+}
+
+variable "db_allocated_storage" {
+  default = 100
+  type    = number
+}
+
+variable "db_max_allocated_storage" {
+  default = 1000
+  type    = number
+}
+
+variable "db_storage_encrypted" {
+  default = true
+  type    = bool
+}
+
+variable "db_backup_retention_period" {
+  default = 7
+  type    = number
+}
+
+variable "db_backup_window" {
+  default = "15:00-15:30"
+  type    = string
+}
+
+variable "db_maintenance_window" {
+  default = "Sat:16:00-Sat:16:30"
+  type    = string
+}
+
+variable "db_performance_insights_enabled" {
+  default = "true"
+  type    = string
+}
+
+variable "db_performance_insights_retention_period" {
+  default = 7
+  type    = number
+}
+
+variable "db_monitoring_interval" {
+  default = 60
+  type    = number
+}
+
+variable "db_auto_minor_version_upgrade" {
   default = false
+  type    = bool
+}
+
+variable "db_skip_final_snapshot" {
+  default = true
+  type    = bool
+}
+
+variable "db_apply_immediately" {
+  default = true
+  type    = bool
+}
+
+# ElastiCache #
+
+variable "cache_engine_version" {
+  default = "6.2"
+  type    = string
+}
+
+variable "cache_node_type" {
+  default = "cache.m6g.large"
+  type    = string
+}
+variable "num_node_groups" {
+  default = 1
+  type    = number
+}
+
+variable "replicas_per_node_group" {
+  default = 1
+  type    = number
+}
+
+variable "cache_snapshot_retention_limit" {
+  default = 7
+  type    = number
+}
+
+variable "cache_snapshot_window" {
+  default = "15:00-16:00"
+  type    = string
+}
+
+variable "cache_maintenance_window" {
+  default = "Sat:16:00-Sat:17:00"
+  type    = string
+}
+
+variable "cache_auto_minor_version_upgrade" {
+  default = true
   type    = bool
 }
