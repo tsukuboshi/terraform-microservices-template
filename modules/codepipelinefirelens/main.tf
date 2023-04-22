@@ -79,7 +79,7 @@ resource "aws_codepipeline" "tf_codepipeline" {
         ApplicationName                = var.codedeploy_app_name
         DeploymentGroupName            = var.codedeploy_group_name
         TaskDefinitionTemplateArtifact = "BuildArtifactApp"
-        AppSpecTemplateArtifact        = "BuildArtifactFirelens"
+        AppSpecTemplateArtifact        = "BuildArtifactApp"
         # AppSpecTemplatePath            = file(var.appspec_file)
         # TaskDefinitionTemplatePath     = file(var.taskdef_file)
         Image1ArtifactName  = "BuildArtifactApp"
