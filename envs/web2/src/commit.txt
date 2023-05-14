@@ -1,7 +1,0 @@
-git config --local user.name "test"
-git config --local user.email test@example.com
-git config --local init.defaultBranch main
-cp -p ${TASKDEF_FILE} ${APPSPEC_FILE} ${DOCKER_FILE} .
-git add -A
-git commit -m "Added task definition files"
-git push -u origin main

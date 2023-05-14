@@ -607,7 +607,7 @@ module "codebuild_app" {
   environment                  = var.environment
   resourcetype                 = "${var.service_rsrc_type_build}-app"
   has_blue_green_deployment    = var.has_blue_green_deployment
-  buildspec_bgdeploy_file      = "src/${var.app_image_name}/buildspec_bgdeploy.yml"
+  buildspec_bgdeploy_file      = "src/buildspec_bgdeploy.yml"
   buildspec_rollingupdate_file = "src/buildspec_rollingupdate.yml"
   container_build_path         = "./${var.app_image_name}"
   codebuild_log_group_name     = module.codebuild_app_log_group.log_group_name
@@ -634,7 +634,7 @@ module "codebuild_firelens" {
   environment                  = var.environment
   resourcetype                 = "${var.service_rsrc_type_build}-firelens"
   has_blue_green_deployment    = var.has_blue_green_deployment
-  buildspec_bgdeploy_file      = "src/${var.firelens_image_name}/buildspec_bgdeploy.yml"
+  buildspec_bgdeploy_file      = "src/buildspec_bgdeploy.yml"
   buildspec_rollingupdate_file = "src/buildspec_rollingupdate.yml"
   container_build_path         = "./${var.firelens_image_name}"
   codebuild_log_group_name     = module.codebuild_firelens_log_group.log_group_name

@@ -18,7 +18,7 @@
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-group": "<CW_LOG_GROUP>",
-                    "awslogs-region": "<CW_REGION>",
+                    "awslogs-region": "<CW_LOG_REGION>",
                     "awslogs-stream-prefix": "<CW_LOG_STREAM_PREFIX>"
                 }
             }

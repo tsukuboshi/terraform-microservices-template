@@ -11,7 +11,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URI:latest ./fluentbit
+      - docker build -t $REPOSITORY_URI:latest ${CONTAINER_BUILD_PATH}
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
@@ -26,10 +26,9 @@ phases:
       - sed -i -e "s#<TASK_ROLE_ARN>#${TASK_ROLE_ARN}#" taskdef.json
       - sed -i -e "s#<EXECUTION_ROLE_ARN>#${EXECUTION_ROLE_ARN}#" taskdef.json
       - sed -i -e "s#<FRONTEND_CONTAINER_NAME>#${FRONTEND_CONTAINER_NAME}#" taskdef.json
-      - sed -i -e "s#<FIRELENS_CONTAINER_NAME>#${FIRELENS_CONTAINER_NAME}#" taskdef.json
-      - sed -i -e "s#<FIRELENS_LOG_GROUP>#${FIRELENS_LOG_GROUP}#" taskdef.json
-      - sed -i -e "s#<FIRELENS_REGION>#${AWS_DEFAULT_REGION}#" taskdef.json
-      - sed -i -e "s#<FIRELENS_STREAM_PREFIX>#${FIRELENS_STREAM_PREFIX}#" taskdef.json
+      - sed -i -e "s#<CW_LOG_GROUP>#${CW_LOG_GROUP}#" taskdef.json
+      - sed -i -e "s#<CW_LOG_REGION>#${AWS_DEFAULT_REGION}#" taskdef.json
+      - sed -i -e "s#<CW_LOG_STREAM_PREFIX>#${CW_LOG_STREAM_PREFIX}#" taskdef.json
       - echo Rewriting appspec file...
       - sed -i -e "s#<FRONTEND_CONTAINER_NAME>#${FRONTEND_CONTAINER_NAME}#" appspec.yml
 artifacts:

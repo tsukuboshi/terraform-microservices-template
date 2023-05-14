@@ -248,6 +248,6 @@ variable "ecs_service_desired_count" {
 }
 
 variable "has_blue_green_deployment" {
-  default = true
+  default = false
   type    = bool
 }

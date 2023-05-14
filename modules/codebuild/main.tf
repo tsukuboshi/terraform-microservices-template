@@ -47,6 +47,11 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     environment_variable {
+      name  = "CONTAINER_BUILD_PATH"
+      value = var.container_build_path
+    }
+
+    environment_variable {
       name  = "TASK_FAMILY"
       value = var.ecs_task_definition_family
     }
