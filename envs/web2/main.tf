@@ -558,54 +558,54 @@ module "codebuild_app_log_group" {
   log_group_name = "/aws/codebuild/app"
 }
 
-module "iam_codedeploy_policy" {
-  source              = "../../modules/iammanagedpolicy"
-  iam_role_policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"
-}
+# module "iam_codedeploy_policy" {
+#   source              = "../../modules/iammanagedpolicy"
+#   iam_role_policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"
+# }
 
-module "iam_codedeploy_role" {
-  source                         = "../../modules/iamrole"
-  system                         = var.system
-  project                        = var.project
-  environment                    = var.environment
-  resourcetype                   = var.service_rsrc_type_deploy
-  iam_role_principal_identifiers = "codedeploy.amazonaws.com"
-  iam_policy_arn                 = module.iam_codedeploy_policy.iam_policy_arn
-}
+# module "iam_codedeploy_role" {
+#   source                         = "../../modules/iamrole"
+#   system                         = var.system
+#   project                        = var.project
+#   environment                    = var.environment
+#   resourcetype                   = var.service_rsrc_type_deploy
+#   iam_role_principal_identifiers = "codedeploy.amazonaws.com"
+#   iam_policy_arn                 = module.iam_codedeploy_policy.iam_policy_arn
+# }
 
-module "codedeploy" {
-  source                    = "../../modules/codedeploy"
-  system                    = var.system
-  project                   = var.project
-  environment               = var.environment
-  resourcetype              = var.service_rsrc_type_deploy
-  has_blue_green_deployment = var.has_blue_green_deployment
-  codedeploy_role_arn       = module.iam_codedeploy_role.iam_role_arn
-  ecs_cluster_name          = module.ecs_cluster.ecs_cluster_name
-  ecs_service_name          = module.ecs_service.ecs_service_name
-  blue_listener_arn         = module.alb_blue_https_listener.listener_arn
-  green_listener_arn        = module.alb_green_https_listener.listener_arn
-  blue_tg_name              = module.alb_blue_tg.alb_tg_name
-  green_tg_name             = module.alb_green_tg.alb_tg_name
-}
+# module "codedeploy" {
+#   source                    = "../../modules/codedeploy"
+#   system                    = var.system
+#   project                   = var.project
+#   environment               = var.environment
+#   resourcetype              = var.service_rsrc_type_deploy
+#   has_blue_green_deployment = var.has_blue_green_deployment
+#   codedeploy_role_arn       = module.iam_codedeploy_role.iam_role_arn
+#   ecs_cluster_name          = module.ecs_cluster.ecs_cluster_name
+#   ecs_service_name          = module.ecs_service.ecs_service_name
+#   blue_listener_arn         = module.alb_blue_https_listener.listener_arn
+#   green_listener_arn        = module.alb_green_https_listener.listener_arn
+#   blue_tg_name              = module.alb_blue_tg.alb_tg_name
+#   green_tg_name             = module.alb_green_tg.alb_tg_name
+# }
 
-module "iam_codepipeline_policy" {
-  source       = "../../modules/iamcodepipelinepolicy"
-  system       = var.system
-  project      = var.project
-  environment  = var.environment
-  resourcetype = var.service_rsrc_type_pipeline
-}
+# module "iam_codepipeline_policy" {
+#   source       = "../../modules/iamcodepipelinepolicy"
+#   system       = var.system
+#   project      = var.project
+#   environment  = var.environment
+#   resourcetype = var.service_rsrc_type_pipeline
+# }
 
-module "iam_codepipeline_role" {
-  source                         = "../../modules/iamrole"
-  system                         = var.system
-  project                        = var.project
-  environment                    = var.environment
-  resourcetype                   = var.service_rsrc_type_pipeline
-  iam_role_principal_identifiers = "codepipeline.amazonaws.com"
-  iam_policy_arn                 = module.iam_codepipeline_policy.codepipeline_iam_policy_arn
-}
+# module "iam_codepipeline_role" {
+#   source                         = "../../modules/iamrole"
+#   system                         = var.system
+#   project                        = var.project
+#   environment                    = var.environment
+#   resourcetype                   = var.service_rsrc_type_pipeline
+#   iam_role_principal_identifiers = "codepipeline.amazonaws.com"
+#   iam_policy_arn                 = module.iam_codepipeline_policy.codepipeline_iam_policy_arn
+# }
 
 module "s3_artifact_bucket" {
   source      = "../../modules/s3artifactbucket"
@@ -615,51 +615,51 @@ module "s3_artifact_bucket" {
   internal    = var.internal
 }
 
-module "codepipeline" {
-  source                     = "../../modules/codepipeline"
-  system                     = var.system
-  project                    = var.project
-  environment                = var.environment
-  resourcetype               = var.service_rsrc_type_pipeline
-  has_blue_green_deployment  = var.has_blue_green_deployment
-  appspec_file               = "src/appspec.yml"
-  taskdef_file               = "src/taskdef.json"
-  codepipeline_role_arn      = module.iam_codepipeline_role.iam_role_arn
-  artifact_bucket            = module.s3_artifact_bucket.bucket_name
-  codecommit_repository_name = module.codecommit.codecommit_repository_name
-  codebuild_app_project_id   = module.codebuild_app.codebuild_project_id
-  ecs_cluster_id             = module.ecs_cluster.ecs_cluster_id
-  ecs_service_name           = module.ecs_service.ecs_service_name
-  codedeploy_app_name        = module.codedeploy.codedeploy_app_name
-  codedeploy_group_name      = module.codedeploy.codedeploy_group_name
-}
+# module "codepipeline" {
+#   source                     = "../../modules/codepipeline"
+#   system                     = var.system
+#   project                    = var.project
+#   environment                = var.environment
+#   resourcetype               = var.service_rsrc_type_pipeline
+#   has_blue_green_deployment  = var.has_blue_green_deployment
+#   appspec_file               = "src/appspec.yml"
+#   taskdef_file               = "src/taskdef.json"
+#   codepipeline_role_arn      = module.iam_codepipeline_role.iam_role_arn
+#   artifact_bucket            = module.s3_artifact_bucket.bucket_name
+#   codecommit_repository_name = module.codecommit.codecommit_repository_name
+#   codebuild_app_project_id   = module.codebuild_app.codebuild_project_id
+#   ecs_cluster_id             = module.ecs_cluster.ecs_cluster_id
+#   ecs_service_name           = module.ecs_service.ecs_service_name
+#   codedeploy_app_name        = module.codedeploy.codedeploy_app_name
+#   codedeploy_group_name      = module.codedeploy.codedeploy_group_name
+# }
 
-module "iam_eventbridge_policy" {
-  source       = "../../modules/iameventbridgepolicy"
-  system       = var.system
-  project      = var.project
-  environment  = var.environment
-  resourcetype = var.service_rsrc_type_eventbridge
-}
+# module "iam_eventbridge_policy" {
+#   source       = "../../modules/iameventbridgepolicy"
+#   system       = var.system
+#   project      = var.project
+#   environment  = var.environment
+#   resourcetype = var.service_rsrc_type_eventbridge
+# }
 
-module "iam_eventbridge_role" {
-  source                         = "../../modules/iamrole"
-  system                         = var.system
-  project                        = var.project
-  environment                    = var.environment
-  resourcetype                   = var.service_rsrc_type_eventbridge
-  iam_role_principal_identifiers = "events.amazonaws.com"
-  iam_policy_arn                 = module.iam_eventbridge_policy.eventbridge_iam_policy_arn
-}
+# module "iam_eventbridge_role" {
+#   source                         = "../../modules/iamrole"
+#   system                         = var.system
+#   project                        = var.project
+#   environment                    = var.environment
+#   resourcetype                   = var.service_rsrc_type_eventbridge
+#   iam_role_principal_identifiers = "events.amazonaws.com"
+#   iam_policy_arn                 = module.iam_eventbridge_policy.eventbridge_iam_policy_arn
+# }
 
-module "eventbridge" {
-  source                    = "../../modules/eventbridge"
-  system                    = var.system
-  project                   = var.project
-  environment               = var.environment
-  resourcetype              = var.service_rsrc_type_eventbridge
-  event_pattern_file        = "src/codepipeline_event_pattern.json"
-  codecommit_repository_arn = module.codecommit.codecommit_repository_arn
-  codepipeline_arn          = module.codepipeline.codepipeline_arn
-  eventbridge_role_arn      = module.iam_eventbridge_role.iam_role_arn
-}
+# module "eventbridge" {
+#   source                    = "../../modules/eventbridge"
+#   system                    = var.system
+#   project                   = var.project
+#   environment               = var.environment
+#   resourcetype              = var.service_rsrc_type_eventbridge
+#   event_pattern_file        = "src/codepipeline_event_pattern.json"
+#   codecommit_repository_arn = module.codecommit.codecommit_repository_arn
+#   codepipeline_arn          = module.codepipeline.codepipeline_arn
+#   eventbridge_role_arn      = module.iam_eventbridge_role.iam_role_arn
+# }
