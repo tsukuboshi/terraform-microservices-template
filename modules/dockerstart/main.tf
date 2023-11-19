@@ -7,7 +7,7 @@
 resource "null_resource" "docker_start" {
   ## Rancher Desktopを開始
   provisioner "local-exec" {
-    command = "rdctl start"
+    command = "rdctl start --application.admin-access"
   }
 
   ##
