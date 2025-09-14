@@ -1,29 +1,21 @@
 
 # terraform-microservices-template
 
-## Overview
+## 概要
 
-This repository contains terraform template for microservices architecture.
-
-&emsp;
-
-## Diagram
-
-![Diagram](./images/diagram.drawio.png)
+このリポジトリには、マイクロサービスアーキテクチャ用のTerraformテンプレートが含まれています。
 
 &emsp;
 
-## Required
+## 構成図
 
-- [AWS CLI](https://aws.amazon.com/cli) - v2 or later
-- [Terraform](https://www.terraform.io/downloads.html) - v1 or later
+![構成図](./images/diagram.drawio.png)
 
 &emsp;
 
-## Getting Started
+## 要件
 
-Clone this repository.
+- [AWS CLI](https://aws.amazon.com/cli) - v2以降
+- [Terraform](https://www.terraform.io/downloads.html) - v1以降
 
-```shell
-$ cd ~ && git clone https://github.com/tsukuboshi/terraform-microservices-template
-```
+&emsp;
