@@ -1,0 +1,41 @@
+{
+  "taskRoleArn": "<TASK_ROLE_ARN>",
+  "executionRoleArn": "<EXECUTION_ROLE_ARN>",
+  "containerDefinitions": [
+    {
+      "name": "<FRONTEND_CONTAINER_NAME>",
+      "image": "<IMAGE1_NAME>",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": <FRONTEND_HOST_PORT>,
+          "protocol": "tcp",
+          "containerPort": <FRONTEND_CONTAINER_PORT>
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DB_USERNAME",
+          "valueFrom": "<DB_SECRET_ARN>:username::"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "valueFrom": "<DB_SECRET_ARN>:password::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "<CW_LOG_GROUP>",
+          "awslogs-region": "<CW_LOG_REGION>",
+          "awslogs-stream-prefix": "<CW_LOG_STREAM_PREFIX>"
+        }
+      }
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "<CPU>",
+  "memory": "<MEMORY>",
+  "family": "<TASK_FAMILY>"
+}

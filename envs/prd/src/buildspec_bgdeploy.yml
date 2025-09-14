@@ -1,0 +1,46 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_URI:latest -f ${DOCKER_FILE} .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
+      - echo Writing image detail file...
+      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+      - echo Rewriting task definitions file...
+      - NUM_FRONTEND_HOST_PORT=$(printf "%d" $FRONTEND_HOST_PORT)
+      - NUM_FRONTEND_CONTAINER_PORT=$(printf "%d" $FRONTEND_CONTAINER_PORT)
+      - sed -i -e "s#<TASK_FAMILY>#${TASK_FAMILY}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<CPU>#${CPU}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<MEMORY>#${MEMORY}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<TASK_ROLE_ARN>#${TASK_ROLE_ARN}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<EXECUTION_ROLE_ARN>#${EXECUTION_ROLE_ARN}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<FRONTEND_CONTAINER_NAME>#${FRONTEND_CONTAINER_NAME}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<FRONTEND_HOST_PORT>#${NUM_FRONTEND_HOST_PORT}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<FRONTEND_CONTAINER_PORT>#${NUM_FRONTEND_CONTAINER_PORT}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<DB_SECRET_ARN>#${DB_SECRET_ARN}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<CW_LOG_GROUP>#${CW_LOG_GROUP}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<CW_LOG_REGION>#${AWS_DEFAULT_REGION}#" ${TASK_DEFINITION_FILE}
+      - sed -i -e "s#<CW_LOG_STREAM_PREFIX>#${CW_LOG_STREAM_PREFIX}#" ${TASK_DEFINITION_FILE}
+      - echo Rewriting appspec file...
+      - sed -i -e "s#<FRONTEND_CONTAINER_NAME>#${FRONTEND_CONTAINER_NAME}#" ${APPSPEC_FILE}
+      - sed -i -e "s#<FRONTEND_CONTAINER_PORT>#${NUM_FRONTEND_CONTAINER_PORT}#" ${APPSPEC_FILE}
+artifacts:
+    files:
+      - imageDetail.json
+      - taskdef.json
+      - appspec.yml

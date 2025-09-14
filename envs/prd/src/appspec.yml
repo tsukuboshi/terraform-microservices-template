@@ -1,0 +1,10 @@
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: "<TASK_DEFINITION>"
+        LoadBalancerInfo:
+          ContainerName: "<FRONTEND_CONTAINER_NAME>"
+          ContainerPort: <FRONTEND_CONTAINER_PORT>
+        PlatformVersion: "1.4.0"
