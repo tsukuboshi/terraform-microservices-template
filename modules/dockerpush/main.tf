@@ -4,6 +4,8 @@
 #
 # ====================
 
+# ローカルでのDockerイメージの自動ビルド及びプッシュコマンドを定義
+
 resource "terraform_data" "docker_push" {
   triggers_replace = {
     ecr_login = var.ecr_login_id

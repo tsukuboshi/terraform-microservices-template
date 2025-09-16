@@ -34,6 +34,7 @@ resource "aws_ecs_service" "tf_ecs_service" {
     type = var.has_blue_green_deployment == true ? "CODE_DEPLOY" : "ECS"
   }
 
+  # 自動デプロイ及び自動スケールでECSが更新された後に、Terraformでリソースの設定が上書きされる事を回避するための設定
   lifecycle {
     ignore_changes = [
       desired_count,

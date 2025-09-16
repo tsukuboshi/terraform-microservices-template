@@ -4,6 +4,8 @@
 #
 # ====================
 
+# ローカルでのECRログインコマンドを定義
+
 resource "terraform_data" "ecr_login" {
   triggers_replace = {
     ecr_repo_create = var.ecr_repository_arn

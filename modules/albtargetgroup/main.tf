@@ -26,6 +26,7 @@ resource "aws_lb_target_group" "tf_alb_tg" {
   }
 
   lifecycle {
+    # ターゲットグループがリスナーとして登録されている場合に、設定変更による再生成が妨げられてしまう現象を回避するための設定
     create_before_destroy = true
     ignore_changes        = [name]
   }
@@ -69,8 +70,9 @@ resource "aws_lb_listener_rule" "tf_alb_lsnr_rule" {
     }
   }
 
-  # Blue/Greenデプロイメント実行後にリスナールールが変更された際に、Terraformで上書きされてしまう現象を無視するための設定
+
   lifecycle {
+    # Blue/Greenデプロイメント実行後にリスナールールが変更された後に、Terraformでリソースの設定が上書きされてしまう現象を回避するための設定
     ignore_changes = [action[0].target_group_arn]
   }
 }
