@@ -808,7 +808,7 @@ module "ecs_task" {
 
 module "frontend_error_log_group" {
   source         = "../../modules/cloudwatchloggroup"
-  log_group_name = "/aws/ecs/${var.app_container_name}/error"
+  log_group_name = "/aws/ecs/${var.app_container_name}/${var.environment}"
 }
 
 module "iam_rds_policy" {
@@ -1095,7 +1095,7 @@ module "codebuild_app" {
 module "codebuild_app_log_group" {
   count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
   source         = "../../modules/cloudwatchloggroup"
-  log_group_name = "/aws/codebuild/app"
+  log_group_name = "/aws/codebuild/app/${var.environment}"
 }
 
 module "iam_codedeploy_policy" {
