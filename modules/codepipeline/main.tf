@@ -17,7 +17,7 @@ resource "aws_codepipeline" "tf_codepipeline" {
       pull_request {
         events = ["CLOSED"]
         branches {
-          includes = ["main"]
+          includes = ["${var.github_branch_name}"]
         }
       }
     }
