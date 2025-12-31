@@ -425,7 +425,7 @@ variable "deployment_strategy" {
   nullable    = true
 
   validation {
-    condition = var.deployment_strategy == null || contains([
+    condition = var.deployment_strategy == null ? true : contains([
       "ecs_rolling_update",
       "ecs_blue_green_deployment",
       "codedeploy_blue_green_deployment"
