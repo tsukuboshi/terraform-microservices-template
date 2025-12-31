@@ -25,7 +25,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
   }
 
   dynamic "source" {
-    for_each = var.has_rolling_update ? [1] : []
+    for_each = var.deployment_strategy == "ecs_rolling_update" ? [1] : []
     content {
       type                = "CODEPIPELINE"
       git_clone_depth     = 0
@@ -36,7 +36,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
   }
 
   dynamic "source" {
-    for_each = var.has_blue_green_deployment ? [1] : []
+    for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
     content {
       type                = "CODEPIPELINE"
       git_clone_depth     = 0
@@ -72,7 +72,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "TASK_FAMILY"
         value = var.ecs_task_definition_family
@@ -80,7 +80,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "CPU"
         value = var.ecs_task_cpu
@@ -88,7 +88,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "MEMORY"
         value = var.ecs_task_memory
@@ -96,7 +96,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "TASK_ROLE_ARN"
         value = var.ecs_task_role_arn
@@ -104,7 +104,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "EXECUTION_ROLE_ARN"
         value = var.ecs_exec_role_arn
@@ -112,7 +112,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "FRONTEND_CONTAINER_NAME"
         value = var.app_container_name
@@ -120,7 +120,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "FRONTEND_HOST_PORT"
         value = var.app_http_port
@@ -128,7 +128,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "FRONTEND_CONTAINER_PORT"
         value = var.app_http_port
@@ -136,7 +136,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "DB_SECRET_ARN"
         value = var.db_secret_arn
@@ -144,7 +144,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "TASK_DEFINITION_FILE"
         value = var.taskdef_file_path
@@ -152,7 +152,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "APPSPEC_FILE"
         value = var.appspec_file_path
@@ -160,7 +160,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "CW_LOG_GROUP"
         value = var.error_log_group_name
@@ -168,7 +168,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name  = "CW_LOG_STREAM_PREFIX"
         value = var.error_log_stream_prefix

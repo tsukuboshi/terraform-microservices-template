@@ -334,7 +334,7 @@ module "alb_sg_ingress_rule_blue_https" {
 }
 
 module "alb_sg_ingress_rule_green_http" {
-  count               = var.has_blue_green_deployment ? 1 : 0
+  count               = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source              = "../../modules/securitygrouprule"
   system              = var.system
   project             = var.project
@@ -348,7 +348,7 @@ module "alb_sg_ingress_rule_green_http" {
 }
 
 module "alb_sg_ingress_rule_green_https" {
-  count               = var.has_blue_green_deployment ? 1 : 0
+  count               = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source              = "../../modules/securitygrouprule"
   system              = var.system
   project             = var.project
@@ -518,7 +518,7 @@ module "alb_blue_tg" {
 }
 
 module "alb_green_http_listener" {
-  count             = var.has_blue_green_deployment ? 1 : 0
+  count             = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source            = "../../modules/albhttplistener"
   system            = var.system
   project           = var.project
@@ -530,7 +530,7 @@ module "alb_green_http_listener" {
 }
 
 module "alb_green_https_listener" {
-  count                 = var.has_blue_green_deployment ? 1 : 0
+  count                 = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source                = "../../modules/albhttpslistener"
   system                = var.system
   project               = var.project
@@ -543,7 +543,7 @@ module "alb_green_https_listener" {
 }
 
 module "alb_green_tg" {
-  count                     = var.has_blue_green_deployment ? 1 : 0
+  count                     = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source                    = "../../modules/albtargetgroup"
   system                    = var.system
   project                   = var.project
@@ -773,7 +773,7 @@ module "ecs_service" {
   ecs_container_name          = var.app_container_name
   ecs_container_port          = var.app_container_port
   associate_public_ip_address = var.has_public_ip_to_container
-  has_blue_green_deployment   = var.has_blue_green_deployment
+  deployment_strategy         = var.deployment_strategy
   subnet_1a_id                = module.private_1a_subnet.subnet_id
   subnet_1c_id                = module.private_1c_subnet.subnet_id
   security_group_id           = module.ecs_sg.security_group_id
@@ -947,13 +947,13 @@ module "acm_self_signed" {
 }
 
 module "codeconnection" {
-  count                = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count                = var.deployment_strategy != null ? 1 : 0
   source               = "../../modules/codeconnection"
   code_connection_name = var.code_connection_name
 }
 
 module "iam_codebuild_logs_policy" {
-  count             = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy != null ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -964,7 +964,7 @@ module "iam_codebuild_logs_policy" {
 }
 
 module "iam_codebuild_bucket_policy" {
-  count             = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy != null ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -976,7 +976,7 @@ module "iam_codebuild_bucket_policy" {
 
 
 module "iam_codebuild_ecr_policy" {
-  count        = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count        = var.deployment_strategy != null ? 1 : 0
   source       = "../../modules/iampolicy"
   system       = var.system
   project      = var.project
@@ -988,7 +988,7 @@ module "iam_codebuild_ecr_policy" {
 }
 
 module "iam_codebuild_vpc_policy" {
-  count             = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy != null ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -999,7 +999,7 @@ module "iam_codebuild_vpc_policy" {
 }
 
 module "iam_codebuild_subnet_policy" {
-  count              = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count              = var.deployment_strategy != null ? 1 : 0
   source             = "../../modules/iampolicy"
   system             = var.system
   project            = var.project
@@ -1013,7 +1013,7 @@ module "iam_codebuild_subnet_policy" {
 }
 
 module "iam_codebuild_role" {
-  count                          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count                          = var.deployment_strategy != null ? 1 : 0
   source                         = "../../modules/iamrole"
   system                         = var.system
   project                        = var.project
@@ -1023,49 +1023,48 @@ module "iam_codebuild_role" {
 }
 
 module "iam_codebuild_role_logs_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codebuild_role[0].iam_role_name
   iam_policy_arn = module.iam_codebuild_logs_policy[0].iam_policy_arn
 }
 
 module "iam_codebuild_role_bucket_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codebuild_role[0].iam_role_name
   iam_policy_arn = module.iam_codebuild_bucket_policy[0].iam_policy_arn
 }
 
 module "iam_codebuild_role_ecr_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codebuild_role[0].iam_role_name
   iam_policy_arn = module.iam_codebuild_ecr_policy[0].iam_policy_arn
 }
 
 module "iam_codebuild_role_vpc_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codebuild_role[0].iam_role_name
   iam_policy_arn = module.iam_codebuild_vpc_policy[0].iam_policy_arn
 }
 
 module "iam_codebuild_role_subnet_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codebuild_role[0].iam_role_name
   iam_policy_arn = module.iam_codebuild_subnet_policy[0].iam_policy_arn
 }
 
 module "codebuild_app" {
-  count                        = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count                        = var.deployment_strategy != null ? 1 : 0
   source                       = "../../modules/codebuild"
   system                       = var.system
   project                      = var.project
   environment                  = var.environment
   resourcetype                 = "${var.service_rsrc_type_build}-app"
-  has_rolling_update           = var.has_rolling_update
-  has_blue_green_deployment    = var.has_blue_green_deployment
+  deployment_strategy          = var.deployment_strategy
   codebuild_vpc_id             = module.vpc.vpc_id
   codebuild_subnet_ids         = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
   codebuild_sg_ids             = [module.codebuild_sg.security_group_id]
@@ -1093,19 +1092,19 @@ module "codebuild_app" {
 }
 
 module "codebuild_app_log_group" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/cloudwatchloggroup"
   log_group_name = "/aws/codebuild/app/${var.environment}"
 }
 
 module "iam_codedeploy_policy" {
-  count               = var.has_blue_green_deployment == true ? 1 : 0
+  count               = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source              = "../../modules/iamservierolepolicy"
   iam_role_policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"
 }
 
 module "iam_codedeploy_role" {
-  count                          = var.has_blue_green_deployment == true ? 1 : 0
+  count                          = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source                         = "../../modules/iamrole"
   system                         = var.system
   project                        = var.project
@@ -1115,14 +1114,14 @@ module "iam_codedeploy_role" {
 }
 
 module "iam_codedeploy_role_policy_attach" {
-  count          = var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codedeploy_role[0].iam_role_name
   iam_policy_arn = module.iam_codedeploy_policy[0].iam_policy_arn
 }
 
 module "codedeploy" {
-  count                  = var.has_blue_green_deployment == true ? 1 : 0
+  count                  = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source                 = "../../modules/codedeploy"
   system                 = var.system
   project                = var.project
@@ -1139,7 +1138,7 @@ module "codedeploy" {
 }
 
 module "s3_artifact_bucket" {
-  count              = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count              = var.deployment_strategy != null ? 1 : 0
   source             = "../../modules/s3artifactbucket"
   system             = var.system
   project            = var.project
@@ -1150,7 +1149,7 @@ module "s3_artifact_bucket" {
 }
 
 module "iam_codepipeline_bucket_policy" {
-  count             = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy != null ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -1161,7 +1160,7 @@ module "iam_codepipeline_bucket_policy" {
 }
 
 module "iam_codepipeline_object_policy" {
-  count             = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy != null ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -1172,7 +1171,7 @@ module "iam_codepipeline_object_policy" {
 }
 
 module "iam_codepipeline_connection_policy" {
-  count             = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy != null ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -1183,7 +1182,7 @@ module "iam_codepipeline_connection_policy" {
 }
 
 module "iam_codepipeline_build_policy" {
-  count             = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy != null ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -1194,7 +1193,7 @@ module "iam_codepipeline_build_policy" {
 }
 
 module "iam_codepipeline_deploy_deployment_policy" {
-  count             = var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -1205,7 +1204,7 @@ module "iam_codepipeline_deploy_deployment_policy" {
 }
 
 module "iam_codepipeline_application_policy" {
-  count             = var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -1216,7 +1215,7 @@ module "iam_codepipeline_application_policy" {
 }
 
 module "iam_codepipeline_deploy_config_policy" {
-  count             = var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -1227,7 +1226,7 @@ module "iam_codepipeline_deploy_config_policy" {
 }
 
 module "iam_codepipeline_ecs_task_policy" {
-  count             = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count             = var.deployment_strategy != null ? 1 : 0
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -1238,7 +1237,7 @@ module "iam_codepipeline_ecs_task_policy" {
 }
 
 module "iam_codepipeline_ecs_service_policy" {
-  count             = var.has_blue_green_deployment == true ? 0 : 1
+  count             = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 0 : 1
   source            = "../../modules/iampolicy"
   system            = var.system
   project           = var.project
@@ -1249,7 +1248,7 @@ module "iam_codepipeline_ecs_service_policy" {
 }
 
 module "iam_codepipeline_ecs_tag_policy" {
-  count              = var.has_blue_green_deployment == true ? 0 : 1
+  count              = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 0 : 1
   source             = "../../modules/iampolicy"
   system             = var.system
   project            = var.project
@@ -1263,7 +1262,7 @@ module "iam_codepipeline_ecs_tag_policy" {
 }
 
 module "iam_codepipeline_passrole_policy" {
-  count              = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count              = var.deployment_strategy != null ? 1 : 0
   source             = "../../modules/iampolicy"
   system             = var.system
   project            = var.project
@@ -1277,7 +1276,7 @@ module "iam_codepipeline_passrole_policy" {
 }
 
 module "iam_codepipeline_role" {
-  count                          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count                          = var.deployment_strategy != null ? 1 : 0
   source                         = "../../modules/iamrole"
   system                         = var.system
   project                        = var.project
@@ -1287,77 +1286,77 @@ module "iam_codepipeline_role" {
 }
 
 module "iam_codepipeline_connection_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_connection_policy[0].iam_policy_arn
 }
 
 module "iam_codepipeline_role_bucket_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_bucket_policy[0].iam_policy_arn
 }
 
 module "iam_codepipeline_object_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_object_policy[0].iam_policy_arn
 }
 
 module "iam_codepipeline_build_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_build_policy[0].iam_policy_arn
 }
 
 module "iam_codepipeline_deploy_deployment_policy_attach" {
-  count          = var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_deploy_deployment_policy[0].iam_policy_arn
 }
 
 module "iam_codepipeline_application_policy_attach" {
-  count          = var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_application_policy[0].iam_policy_arn
 }
 
 module "iam_codepipeline_deploy_config_policy_attach" {
-  count          = var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_deploy_config_policy[0].iam_policy_arn
 }
 
 module "iam_codepipeline_ecs_task_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_ecs_task_policy[0].iam_policy_arn
 }
 
 module "iam_codepipeline_ecs_service_policy_attach" {
-  count          = var.has_rolling_update == true ? 1 : 0
+  count          = var.deployment_strategy == "ecs_rolling_update" ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_ecs_service_policy[0].iam_policy_arn
 }
 
 module "iam_codepipeline_ecs_tag_policy_attach" {
-  count          = var.has_rolling_update == true ? 1 : 0
+  count          = var.deployment_strategy == "ecs_rolling_update" ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_ecs_tag_policy[0].iam_policy_arn
 }
 
 module "iam_codepipeline_passrole_policy_attach" {
-  count          = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
+  count          = var.deployment_strategy != null ? 1 : 0
   source         = "../../modules/iamrolepolicyattach"
   iam_role_name  = module.iam_codepipeline_role[0].iam_role_name
   iam_policy_arn = module.iam_codepipeline_passrole_policy[0].iam_policy_arn
@@ -1365,26 +1364,25 @@ module "iam_codepipeline_passrole_policy_attach" {
 
 
 module "codepipeline" {
-  count                     = var.has_rolling_update == true || var.has_blue_green_deployment == true ? 1 : 0
-  source                    = "../../modules/codepipeline"
-  system                    = var.system
-  project                   = var.project
-  environment               = var.environment
-  resourcetype              = var.service_rsrc_type_pipeline
-  has_rolling_update        = var.has_rolling_update
-  has_blue_green_deployment = var.has_blue_green_deployment
-  enable_approval_stage     = var.enable_approval_stage
-  code_connection_arn       = module.codeconnection[0].code_connection_arn
-  github_repository_owner   = var.github_repository_owner
-  github_repository_name    = var.github_repository_name
-  github_branch_name        = var.github_branch_name
-  taskdef_file_path         = var.github_taskdef_file_path
-  appspec_file_path         = var.github_appspec_file_path
-  codepipeline_role_arn     = module.iam_codepipeline_role[0].iam_role_arn
-  artifact_bucket           = module.s3_artifact_bucket[0].bucket_name
-  codebuild_app_project_id  = module.codebuild_app[0].codebuild_project_id
-  ecs_cluster_id            = var.has_rolling_update == true ? module.ecs_cluster.ecs_cluster_id : null
-  ecs_service_name          = var.has_rolling_update == true ? module.ecs_service.ecs_service_name : null
-  codedeploy_app_name       = var.has_blue_green_deployment == true ? module.codedeploy[0].codedeploy_app_name : null
-  codedeploy_group_name     = var.has_blue_green_deployment == true ? module.codedeploy[0].codedeploy_group_name : null
+  count                    = var.deployment_strategy != null ? 1 : 0
+  source                   = "../../modules/codepipeline"
+  system                   = var.system
+  project                  = var.project
+  environment              = var.environment
+  resourcetype             = var.service_rsrc_type_pipeline
+  deployment_strategy      = var.deployment_strategy
+  enable_approval_stage    = var.enable_approval_stage
+  code_connection_arn      = module.codeconnection[0].code_connection_arn
+  github_repository_owner  = var.github_repository_owner
+  github_repository_name   = var.github_repository_name
+  github_branch_name       = var.github_branch_name
+  taskdef_file_path        = var.github_taskdef_file_path
+  appspec_file_path        = var.github_appspec_file_path
+  codepipeline_role_arn    = module.iam_codepipeline_role[0].iam_role_arn
+  artifact_bucket          = module.s3_artifact_bucket[0].bucket_name
+  codebuild_app_project_id = module.codebuild_app[0].codebuild_project_id
+  ecs_cluster_id           = var.deployment_strategy == "ecs_rolling_update" ? module.ecs_cluster.ecs_cluster_id : null
+  ecs_service_name         = var.deployment_strategy == "ecs_rolling_update" ? module.ecs_service.ecs_service_name : null
+  codedeploy_app_name      = var.deployment_strategy == "codedeploy_blue_green_deployment" ? module.codedeploy[0].codedeploy_app_name : null
+  codedeploy_group_name    = var.deployment_strategy == "codedeploy_blue_green_deployment" ? module.codedeploy[0].codedeploy_group_name : null
 }

@@ -32,4 +32,4 @@ variable "ecs_container_port" {}
 
 variable "ecs_task_definition_arn" {}
 
-variable "has_blue_green_deployment" {}
+variable "deployment_strategy" {}

@@ -14,9 +14,7 @@ variable "resourcetype" {}
 
 variable "codebuild_role_arn" {}
 
-variable "has_rolling_update" {}
-
-variable "has_blue_green_deployment" {}
+variable "deployment_strategy" {}
 
 variable "codebuild_vpc_id" {}
 

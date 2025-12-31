@@ -213,10 +213,10 @@
 | <a name="input_github_taskdef_file_path"></a> [github\_taskdef\_file\_path](#input\_github\_taskdef\_file\_path) | GitHubリポジトリ内のtaskdefファイルのパス | `string` | `"taskdef.json"` | no |
 | <a name="input_green_http_port"></a> [green\_http\_port](#input\_green\_http\_port) | GreenターゲットグループのHTTPポート番号 | `number` | `8080` | no |
 | <a name="input_green_https_port"></a> [green\_https\_port](#input\_green\_https\_port) | GreenターゲットグループのHTTPSポート番号 | `number` | `8443` | no |
-| <a name="input_has_blue_green_deployment"></a> [has\_blue\_green\_deployment](#input\_has\_blue\_green\_deployment) | ブルーグリーンデプロイメントを有効にするかどうか | `bool` | `true` | no |
+| <a name="input_codedeploy_blue_green_deployment_enabled"></a> [has\_blue\_green\_deployment](#input\_has\_blue\_green\_deployment) | ブルーグリーンデプロイメントを有効にするかどうか | `bool` | `true` | no |
 | <a name="input_has_public_ip_to_computer"></a> [has\_public\_ip\_to\_computer](#input\_has\_public\_ip\_to\_computer) | EC2インスタンスにパブリックIPを割り当てるかどうか | `bool` | `false` | no |
 | <a name="input_has_public_ip_to_container"></a> [has\_public\_ip\_to\_container](#input\_has\_public\_ip\_to\_container) | コンテナにパブリックIPを割り当てるかどうか | `bool` | `false` | no |
-| <a name="input_has_rolling_update"></a> [has\_rolling\_update](#input\_has\_rolling\_update) | ローリングアップデートを有効にするかどうか | `bool` | `false` | no |
+| <a name="input_ecs_rolling_update_enabled"></a> [has\_rolling\_update](#input\_has\_rolling\_update) | ローリングアップデートを有効にするかどうか | `bool` | `false` | no |
 | <a name="input_isolated_subnet_1a_cidr_block"></a> [isolated\_subnet\_1a\_cidr\_block](#input\_isolated\_subnet\_1a\_cidr\_block) | 分離サブネット1aのCIDRブロック | `string` | `"10.0.4.0/24"` | no |
 | <a name="input_isolated_subnet_1c_cidr_block"></a> [isolated\_subnet\_1c\_cidr\_block](#input\_isolated\_subnet\_1c\_cidr\_block) | 分離サブネット1cのCIDRブロック | `string` | `"10.0.5.0/24"` | no |
 | <a name="input_multi_az"></a> [multi\_az](#input\_multi\_az) | RDSのマルチAZ配置を有効にするかどうか | `bool` | `true` | no |
