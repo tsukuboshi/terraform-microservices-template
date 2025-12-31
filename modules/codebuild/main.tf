@@ -25,13 +25,13 @@ resource "aws_codebuild_project" "tf_codebuild" {
   }
 
   dynamic "source" {
-    for_each = var.deployment_strategy == "ecs_rolling_update" ? [1] : []
+    for_each = var.deployment_strategy != "codedeploy_blue_green_deployment" ? [1] : []
     content {
       type                = "CODEPIPELINE"
       git_clone_depth     = 0
       insecure_ssl        = false
       report_build_status = false
-      buildspec           = file(var.buildspec_rollingupdate_file)
+      buildspec           = file(var.buildspec_ecs_file)
     }
   }
 
@@ -42,7 +42,7 @@ resource "aws_codebuild_project" "tf_codebuild" {
       git_clone_depth     = 0
       insecure_ssl        = false
       report_build_status = false
-      buildspec           = file(var.buildspec_bgdeploy_file)
+      buildspec           = file(var.buildspec_codedeploy_file)
     }
   }
   logs_config {

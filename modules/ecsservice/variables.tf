@@ -33,3 +33,11 @@ variable "ecs_container_port" {}
 variable "ecs_task_definition_arn" {}
 
 variable "deployment_strategy" {}
+
+variable "alternate_target_group_arn" {}
+
+variable "production_listener_rule_arn" {}
+
+variable "test_listener_rule_arn" {}
+
+variable "ecs_infra_role_arn" {}

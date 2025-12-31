@@ -334,7 +334,7 @@ module "alb_sg_ingress_rule_blue_https" {
 }
 
 module "alb_sg_ingress_rule_green_http" {
-  count               = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
+  count               = var.deployment_strategy != "ecs_rolling_update" ? 1 : 0
   source              = "../../modules/securitygrouprule"
   system              = var.system
   project             = var.project
@@ -348,7 +348,7 @@ module "alb_sg_ingress_rule_green_http" {
 }
 
 module "alb_sg_ingress_rule_green_https" {
-  count               = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
+  count               = var.deployment_strategy != "ecs_rolling_update" ? 1 : 0
   source              = "../../modules/securitygrouprule"
   system              = var.system
   project             = var.project
@@ -518,7 +518,7 @@ module "alb_blue_tg" {
 }
 
 module "alb_green_http_listener" {
-  count             = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
+  count             = var.deployment_strategy != "ecs_rolling_update" ? 1 : 0
   source            = "../../modules/albhttplistener"
   system            = var.system
   project           = var.project
@@ -530,7 +530,7 @@ module "alb_green_http_listener" {
 }
 
 module "alb_green_https_listener" {
-  count                 = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
+  count                 = var.deployment_strategy != "ecs_rolling_update" ? 1 : 0
   source                = "../../modules/albhttpslistener"
   system                = var.system
   project               = var.project
@@ -543,7 +543,7 @@ module "alb_green_https_listener" {
 }
 
 module "alb_green_tg" {
-  count                     = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
+  count                     = var.deployment_strategy != "ecs_rolling_update" ? 1 : 0
   source                    = "../../modules/albtargetgroup"
   system                    = var.system
   project                   = var.project
@@ -753,6 +753,29 @@ module "iam_ecs_task_exec_role_secret_policy_attach" {
   iam_policy_arn = module.iam_ecs_secret_policy.iam_policy_arn
 }
 
+module "iam_ecs_infra_policy" {
+  count               = var.deployment_strategy == "ecs_blue_green_deployment" ? 1 : 0
+  source              = "../../modules/iamservierolepolicy"
+  iam_role_policy_arn = "arn:aws:iam::aws:policy/AmazonECSInfrastructureRolePolicyForLoadBalancers"
+}
+
+module "iam_ecs_infra_role" {
+  count                          = var.deployment_strategy == "ecs_blue_green_deployment" ? 1 : 0
+  source                         = "../../modules/iamrole"
+  system                         = var.system
+  project                        = var.project
+  environment                    = var.environment
+  resourcetype                   = "${var.service_rsrc_type_ecs}-infra"
+  iam_role_principal_identifiers = "ecs.amazonaws.com"
+}
+
+module "iam_ecs_infra_role_policy_attach" {
+  count          = var.deployment_strategy == "ecs_blue_green_deployment" ? 1 : 0
+  source         = "../../modules/iamrolepolicyattach"
+  iam_role_name  = module.iam_ecs_infra_role[0].iam_role_name
+  iam_policy_arn = module.iam_ecs_infra_policy[0].iam_policy_arn
+}
+
 module "ecs_cluster" {
   source             = "../../modules/ecscluster"
   system             = var.system
@@ -763,22 +786,26 @@ module "ecs_cluster" {
 }
 
 module "ecs_service" {
-  source                      = "../../modules/ecsservice"
-  system                      = var.system
-  project                     = var.project
-  environment                 = var.environment
-  resourcetype                = var.service_rsrc_type_ecs
-  ecs_cluster_arn             = module.ecs_cluster.ecs_cluster_arn
-  ecs_service_desired_count   = var.ecs_service_desired_count
-  ecs_container_name          = var.app_container_name
-  ecs_container_port          = var.app_container_port
-  associate_public_ip_address = var.has_public_ip_to_container
-  deployment_strategy         = var.deployment_strategy
-  subnet_1a_id                = module.private_1a_subnet.subnet_id
-  subnet_1c_id                = module.private_1c_subnet.subnet_id
-  security_group_id           = module.ecs_sg.security_group_id
-  target_group_arn            = module.alb_blue_tg.alb_tg_arn
-  ecs_task_definition_arn     = module.ecs_task.ecs_task_arn
+  source                       = "../../modules/ecsservice"
+  system                       = var.system
+  project                      = var.project
+  environment                  = var.environment
+  resourcetype                 = var.service_rsrc_type_ecs
+  ecs_cluster_arn              = module.ecs_cluster.ecs_cluster_arn
+  ecs_service_desired_count    = var.ecs_service_desired_count
+  ecs_container_name           = var.app_container_name
+  ecs_container_port           = var.app_container_port
+  associate_public_ip_address  = var.has_public_ip_to_container
+  deployment_strategy          = var.deployment_strategy
+  subnet_1a_id                 = module.private_1a_subnet.subnet_id
+  subnet_1c_id                 = module.private_1c_subnet.subnet_id
+  security_group_id            = module.ecs_sg.security_group_id
+  target_group_arn             = module.alb_blue_tg.alb_tg_arn
+  ecs_task_definition_arn      = module.ecs_task.ecs_task_arn
+  alternate_target_group_arn   = var.deployment_strategy == "ecs_blue_green_deployment" ? module.alb_green_tg[0].alb_tg_arn : null
+  production_listener_rule_arn = var.deployment_strategy == "ecs_blue_green_deployment" ? module.alb_blue_tg.alb_lsnr_rule_arn : null
+  test_listener_rule_arn       = var.deployment_strategy == "ecs_blue_green_deployment" ? module.alb_green_tg[0].alb_lsnr_rule_arn : null
+  ecs_infra_role_arn           = var.deployment_strategy == "ecs_blue_green_deployment" ? module.iam_ecs_infra_role[0].iam_role_arn : null
 }
 
 module "ecs_task" {
@@ -1058,37 +1085,37 @@ module "iam_codebuild_role_subnet_policy_attach" {
 }
 
 module "codebuild_app" {
-  count                        = var.deployment_strategy != null ? 1 : 0
-  source                       = "../../modules/codebuild"
-  system                       = var.system
-  project                      = var.project
-  environment                  = var.environment
-  resourcetype                 = "${var.service_rsrc_type_build}-app"
-  deployment_strategy          = var.deployment_strategy
-  codebuild_vpc_id             = module.vpc.vpc_id
-  codebuild_subnet_ids         = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
-  codebuild_sg_ids             = [module.codebuild_sg.security_group_id]
-  buildspec_bgdeploy_file      = "src/buildspec_bgdeploy.yml"
-  buildspec_rollingupdate_file = "src/buildspec_rollingupdate.yml"
-  codebuild_compute_type       = var.codebuild_compute_type
-  codebuild_image              = var.codebuild_image
-  account_id                   = module.account.id
-  docker_file_path             = var.github_docker_file_path
-  taskdef_file_path            = var.github_taskdef_file_path
-  appspec_file_path            = var.github_appspec_file_path
-  codebuild_log_group_name     = module.codebuild_app_log_group[0].log_group_name
-  app_container_name           = var.app_container_name
-  app_http_port                = var.app_container_port
-  db_secret_arn                = module.rds.rds_db_secret_arn
-  error_log_stream_prefix      = "${var.app_container_name}_sidecar"
-  error_log_group_name         = module.frontend_error_log_group.log_group_name
-  codebuild_role_arn           = module.iam_codebuild_role[0].iam_role_arn
-  ecr_repository_url           = module.ecr.ecr_repository_url
-  ecs_task_definition_family   = module.ecs_task.ecs_task_family
-  ecs_task_role_arn            = module.iam_ecs_task_role.iam_role_arn
-  ecs_exec_role_arn            = module.iam_ecs_task_exec_role.iam_role_arn
-  ecs_task_cpu                 = var.ecs_task_cpu
-  ecs_task_memory              = var.ecs_task_memory
+  count                      = var.deployment_strategy != null ? 1 : 0
+  source                     = "../../modules/codebuild"
+  system                     = var.system
+  project                    = var.project
+  environment                = var.environment
+  resourcetype               = "${var.service_rsrc_type_build}-app"
+  deployment_strategy        = var.deployment_strategy
+  codebuild_vpc_id           = module.vpc.vpc_id
+  codebuild_subnet_ids       = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  codebuild_sg_ids           = [module.codebuild_sg.security_group_id]
+  buildspec_codedeploy_file  = "src/buildspec_codedeploy.yml"
+  buildspec_ecs_file         = "src/buildspec_ecs.yml"
+  codebuild_compute_type     = var.codebuild_compute_type
+  codebuild_image            = var.codebuild_image
+  account_id                 = module.account.id
+  docker_file_path           = var.github_docker_file_path
+  taskdef_file_path          = var.github_taskdef_file_path
+  appspec_file_path          = var.github_appspec_file_path
+  codebuild_log_group_name   = module.codebuild_app_log_group[0].log_group_name
+  app_container_name         = var.app_container_name
+  app_http_port              = var.app_container_port
+  db_secret_arn              = module.rds.rds_db_secret_arn
+  error_log_stream_prefix    = "${var.app_container_name}_sidecar"
+  error_log_group_name       = module.frontend_error_log_group.log_group_name
+  codebuild_role_arn         = module.iam_codebuild_role[0].iam_role_arn
+  ecr_repository_url         = module.ecr.ecr_repository_url
+  ecs_task_definition_family = module.ecs_task.ecs_task_family
+  ecs_task_role_arn          = module.iam_ecs_task_role.iam_role_arn
+  ecs_exec_role_arn          = module.iam_ecs_task_exec_role.iam_role_arn
+  ecs_task_cpu               = var.ecs_task_cpu
+  ecs_task_memory            = var.ecs_task_memory
 }
 
 module "codebuild_app_log_group" {
