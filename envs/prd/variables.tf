@@ -387,6 +387,21 @@ variable "allow_latest_tag" {
   type        = bool
 }
 
+variable "desktop_app_name" {
+  description = "ローカル開発で使用するデスクトップアプリケーション名（null: 使用しない, docker_desktop: Docker Desktop, rancher_desktop: Rancher Desktop）"
+  default     = null
+  type        = string
+  nullable    = true
+
+  validation {
+    condition = var.desktop_app_name == null ? true : contains([
+      "docker_desktop",
+      "rancher_desktop"
+    ], var.desktop_app_name)
+    error_message = "desktop_app_name must be null or one of: docker_desktop, rancher_desktop"
+  }
+}
+
 # ECS #
 variable "app_container_port" {
   description = "アプリケーションコンテナのポート番号"

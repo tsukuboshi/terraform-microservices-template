@@ -652,9 +652,10 @@ module "ecr_login" {
   ecr_repository_url = module.ecr.ecr_repository_url
 }
 
-# module "rancher_desktop_start" {
-#   source = "../../modules/rancherdesktopstart"
-# }
+module "docker_start" {
+  source           = "../../modules/dockerstart"
+  desktop_app_name = var.desktop_app_name
+}
 
 module "ecr_app_push" {
   source             = "../../modules/dockerpush"
