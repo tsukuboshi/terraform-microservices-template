@@ -1409,8 +1409,8 @@ module "codepipeline" {
   codepipeline_role_arn    = module.iam_codepipeline_role[0].iam_role_arn
   artifact_bucket          = module.s3_artifact_bucket[0].bucket_name
   codebuild_app_project_id = module.codebuild_app[0].codebuild_project_id
-  ecs_cluster_id           = var.deployment_strategy == "ecs_rolling_update" ? module.ecs_cluster.ecs_cluster_id : null
-  ecs_service_name         = var.deployment_strategy == "ecs_rolling_update" ? module.ecs_service.ecs_service_name : null
+  ecs_cluster_id           = var.deployment_strategy != "codedeploy_blue_green_deployment" ? module.ecs_cluster.ecs_cluster_id : null
+  ecs_service_name         = var.deployment_strategy != "codedeploy_blue_green_deployment" ? module.ecs_service.ecs_service_name : null
   codedeploy_app_name      = var.deployment_strategy == "codedeploy_blue_green_deployment" ? module.codedeploy[0].codedeploy_app_name : null
   codedeploy_group_name    = var.deployment_strategy == "codedeploy_blue_green_deployment" ? module.codedeploy[0].codedeploy_group_name : null
 }
