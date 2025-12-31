@@ -15,8 +15,13 @@ resource "aws_ecs_service" "tf_ecs_service" {
   health_check_grace_period_seconds = 60
   availability_zone_rebalancing     = "ENABLED"
 
-  deployment_controller {
-    type = var.deployment_strategy == "codedeploy_blue_green_deployment" ? "CODE_DEPLOY" : "ECS"
+  network_configuration {
+    assign_public_ip = var.associate_public_ip_address
+    security_groups  = [var.security_group_id]
+    subnets = [
+      var.subnet_1a_id,
+      var.subnet_1c_id
+    ]
   }
 
   dynamic "deployment_configuration" {
@@ -34,32 +39,21 @@ resource "aws_ecs_service" "tf_ecs_service" {
     }
   }
 
-  network_configuration {
-    assign_public_ip = var.associate_public_ip_address
-    security_groups  = [var.security_group_id]
-    subnets = [
-      var.subnet_1a_id,
-      var.subnet_1c_id
-    ]
-  }
-
-  dynamic "load_balancer" {
-    for_each = var.deployment_strategy != "ecs_blue_green_deployment" ? [1] : []
+  dynamic "deployment_controller" {
+    for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
     content {
-      target_group_arn = var.target_group_arn
-      container_name   = var.ecs_container_name
-      container_port   = var.ecs_container_port
+      type = var.deployment_strategy == "CODE_DEPLOY"
     }
   }
 
-  dynamic "load_balancer" {
-    for_each = var.deployment_strategy == "ecs_blue_green_deployment" ? [1] : []
-    content {
-      target_group_arn = var.target_group_arn
-      container_name   = var.ecs_container_name
-      container_port   = var.ecs_container_port
+  load_balancer {
+    target_group_arn = var.target_group_arn
+    container_name   = var.ecs_container_name
+    container_port   = var.ecs_container_port
 
-      advanced_configuration {
+    dynamic "advanced_configuration" {
+      for_each = var.deployment_strategy == "ecs_blue_green_deployment" ? [1] : []
+      content {
         alternate_target_group_arn = var.alternate_target_group_arn
         production_listener_rule   = var.production_listener_rule_arn
         role_arn                   = var.ecs_infra_role_arn
