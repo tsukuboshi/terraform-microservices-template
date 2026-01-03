@@ -55,6 +55,12 @@ variable "environment" {
   type        = string
 }
 
+variable "multi_az" {
+  description = "マルチAZ配置を有効にするかどうか"
+  default     = true
+  type        = bool
+}
+
 variable "deletion_protection" {
   description = "リソースの削除保護を有効にするかどうか"
   default     = true
@@ -450,18 +456,6 @@ variable "deployment_strategy" {
 }
 
 # RDS #
-variable "db_instance_count" {
-  description = "RDSインスタンスの数"
-  default     = 2
-  type        = number
-}
-
-variable "multi_az" {
-  description = "RDSのマルチAZ配置を有効にするかどうか"
-  default     = true
-  type        = bool
-}
-
 variable "rds_engine" {
   description = "RDSのデータベースエンジン"
   default     = "postgres"

@@ -164,25 +164,26 @@ module "internetgateway" {
 }
 
 module "public_1a_natgateway" {
-  source         = "../../modules/natgateway"
-  system         = var.system
-  project        = var.project
-  environment    = var.environment
-  resourcetype   = "${var.network_rsrc_type_public}-${var.az_short_name_1a}"
-  subnet_id      = module.public_1a_subnet.subnet_id
-  igw_id         = module.internetgateway.internet_route_id
-  route_table_id = module.private_1a_routetable.route_table_id
+  source          = "../../modules/natgateway"
+  system          = var.system
+  project         = var.project
+  environment     = var.environment
+  resourcetype    = "${var.network_rsrc_type_public}-${var.az_short_name_1a}"
+  subnet_id       = module.public_1a_subnet.subnet_id
+  igw_id          = module.internetgateway.internet_route_id
+  route_table_ids = var.multi_az ? [module.private_1a_routetable.route_table_id] : [module.private_1a_routetable.route_table_id, module.private_1c_routetable.route_table_id]
 }
 
 module "public_1c_natgateway" {
-  source         = "../../modules/natgateway"
-  system         = var.system
-  project        = var.project
-  environment    = var.environment
-  resourcetype   = "${var.network_rsrc_type_public}-${var.az_short_name_1c}"
-  subnet_id      = module.public_1c_subnet.subnet_id
-  igw_id         = module.internetgateway.internet_route_id
-  route_table_id = module.private_1c_routetable.route_table_id
+  count           = var.multi_az ? 1 : 0
+  source          = "../../modules/natgateway"
+  system          = var.system
+  project         = var.project
+  environment     = var.environment
+  resourcetype    = "${var.network_rsrc_type_public}-${var.az_short_name_1c}"
+  subnet_id       = module.public_1c_subnet.subnet_id
+  igw_id          = module.internetgateway.internet_route_id
+  route_table_ids = [module.private_1c_routetable.route_table_id]
 }
 
 module "vpce_ecr_dkr" {
@@ -783,7 +784,7 @@ module "ecs_cluster" {
   project            = var.project
   environment        = var.environment
   resourcetype       = var.service_rsrc_type_ecs
-  outbound_route_ids = module.internetgateway.internet_route_id
+  outbound_route_ids = values(module.public_1a_natgateway.internet_route_ids)
 }
 
 module "ecs_service" {
@@ -831,7 +832,7 @@ module "ecs_task" {
   ecr_repository_url         = module.ecr.ecr_repository_url
   error_log_group_name       = module.frontend_error_log_group.log_group_name
   ecr_app_push_id            = module.ecr_app_push.docker_push_id
-  outbound_route_ids         = module.internetgateway.internet_route_id
+  outbound_route_ids         = values(module.public_1a_natgateway.internet_route_ids)
 }
 
 module "frontend_error_log_group" {

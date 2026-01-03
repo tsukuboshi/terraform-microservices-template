@@ -16,4 +16,6 @@ variable "igw_id" {}
 
 variable "subnet_id" {}
 
-variable "route_table_id" {}
+variable "route_table_ids" {
+  type = list(string)
+}
