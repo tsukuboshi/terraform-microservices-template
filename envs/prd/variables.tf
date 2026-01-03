@@ -344,7 +344,7 @@ variable "waf_rsrc_type_alb" {
   type        = string
 }
 
-variable "waf_ip_list" {
+variable "waf_ips" {
   description = "WAFのIPアドレス"
   default     = ["0.0.0.0/1", "128.0.0.0/1"]
   type        = list(string)

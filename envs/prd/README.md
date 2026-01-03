@@ -117,8 +117,11 @@
 | <a name="module_isolated_1c_subnet"></a> [isolated\_1c\_subnet](#module\_isolated\_1c\_subnet) | ../../modules/subnet | n/a |
 | <a name="module_isolated_networkacl"></a> [isolated\_networkacl](#module\_isolated\_networkacl) | ../../modules/networkacl | n/a |
 | <a name="module_isolated_routetable"></a> [isolated\_routetable](#module\_isolated\_routetable) | ../../modules/routetable | n/a |
+| <a name="module_private_1a_ngw_1a_route"></a> [private\_1a\_ngw\_1a\_route](#module\_private\_1a\_ngw\_1a\_route) | ../../modules/route | n/a |
 | <a name="module_private_1a_routetable"></a> [private\_1a\_routetable](#module\_private\_1a\_routetable) | ../../modules/routetable | n/a |
 | <a name="module_private_1a_subnet"></a> [private\_1a\_subnet](#module\_private\_1a\_subnet) | ../../modules/subnet | n/a |
+| <a name="module_private_1c_ngw_1a_route"></a> [private\_1c\_ngw\_1a\_route](#module\_private\_1c\_ngw\_1a\_route) | ../../modules/route | n/a |
+| <a name="module_private_1c_ngw_1c_route"></a> [private\_1c\_ngw\_1c\_route](#module\_private\_1c\_ngw\_1c\_route) | ../../modules/route | n/a |
 | <a name="module_private_1c_routetable"></a> [private\_1c\_routetable](#module\_private\_1c\_routetable) | ../../modules/routetable | n/a |
 | <a name="module_private_1c_subnet"></a> [private\_1c\_subnet](#module\_private\_1c\_subnet) | ../../modules/subnet | n/a |
 | <a name="module_private_networkacl"></a> [private\_networkacl](#module\_private\_networkacl) | ../../modules/networkacl | n/a |
@@ -126,6 +129,7 @@
 | <a name="module_public_1a_subnet"></a> [public\_1a\_subnet](#module\_public\_1a\_subnet) | ../../modules/subnet | n/a |
 | <a name="module_public_1c_natgateway"></a> [public\_1c\_natgateway](#module\_public\_1c\_natgateway) | ../../modules/natgateway | n/a |
 | <a name="module_public_1c_subnet"></a> [public\_1c\_subnet](#module\_public\_1c\_subnet) | ../../modules/subnet | n/a |
+| <a name="module_public_igw_route"></a> [public\_igw\_route](#module\_public\_igw\_route) | ../../modules/route | n/a |
 | <a name="module_public_networkacl"></a> [public\_networkacl](#module\_public\_networkacl) | ../../modules/networkacl | n/a |
 | <a name="module_public_routetable"></a> [public\_routetable](#module\_public\_routetable) | ../../modules/routetable | n/a |
 | <a name="module_rds"></a> [rds](#module\_rds) | ../../modules/rds | n/a |
@@ -259,8 +263,8 @@
 | <a name="input_versioning_enabled"></a> [versioning\_enabled](#input\_versioning\_enabled) | S3バケットのバージョニングを有効にするかどうか | `bool` | `false` | no |
 | <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | VPCのCIDRブロック | `string` | `"10.0.0.0/16"` | no |
 | <a name="input_waf_default_action_block_mode"></a> [waf\_default\_action\_block\_mode](#input\_waf\_default\_action\_block\_mode) | WAFのデフォルトアクションをブロックにするかどうか | `bool` | `true` | no |
-| <a name="input_waf_ip_list"></a> [waf\_ip\_list](#input\_waf\_ip\_list) | WAFのIPアドレス | `list(string)` | <pre>[<br/>  "0.0.0.0/1",<br/>  "128.0.0.0/1"<br/>]</pre> | no |
 | <a name="input_waf_ip_rule_allow_mode"></a> [waf\_ip\_rule\_allow\_mode](#input\_waf\_ip\_rule\_allow\_mode) | WAFのIPアドレスルールをアローにするかどうか | `bool` | `true` | no |
+| <a name="input_waf_ips"></a> [waf\_ips](#input\_waf\_ips) | WAFのIPアドレス | `list(string)` | <pre>[<br/>  "0.0.0.0/1",<br/>  "128.0.0.0/1"<br/>]</pre> | no |
 | <a name="input_waf_managed_rule_block_mode"></a> [waf\_managed\_rule\_block\_mode](#input\_waf\_managed\_rule\_block\_mode) | WAFのマネージドルールをブロックにするかどうか | `bool` | `false` | no |
 | <a name="input_waf_rsrc_type_alb"></a> [waf\_rsrc\_type\_alb](#input\_waf\_rsrc\_type\_alb) | WAFリソースタイプ（ALB用） | `string` | `"alb"` | no |
 

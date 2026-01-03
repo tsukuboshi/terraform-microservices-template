@@ -4,28 +4,45 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "deletion_protection" {}
+variable "deletion_protection" {
+  type = bool
+}
 
-variable "subnet_1a_id" {}
+variable "subnet_1a_id" {
+  type = string
+}
 
-variable "subnet_1c_id" {}
+variable "subnet_1c_id" {
+  type = string
+}
 
-variable "security_group_id" {}
+variable "security_group_id" {
+  type = string
+}
 
 variable "has_access_logs" {
+  type    = bool
   default = false
 }
 
 variable "access_log_bucket_name" {
+  type    = string
   default = null
 }
 
 variable "access_log_prefix" {
+  type    = string
   default = null
 }

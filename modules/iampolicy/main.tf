@@ -12,8 +12,8 @@ resource "aws_iam_policy" "tf_iam_policy" {
 data "aws_iam_policy_document" "tf_iam_policy_document" {
   statement {
     effect    = "Allow"
-    actions   = var.action_list
-    resources = var.resource_arn_list
+    actions   = var.api_actions
+    resources = var.resource_arns
     dynamic "condition" {
       for_each = var.condition_test != null && var.condition_variable != null && var.condition_values != null ? [1] : []
       content {

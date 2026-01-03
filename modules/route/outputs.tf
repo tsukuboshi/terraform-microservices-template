@@ -4,6 +4,6 @@
 #
 # ====================
 
-output "nat_gateway_id" {
-  value = aws_nat_gateway.tf_ngw.id
+output "route_id" {
+  value = aws_route.tf_route.id
 }

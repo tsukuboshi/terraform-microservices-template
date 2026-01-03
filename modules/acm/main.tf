@@ -10,7 +10,7 @@ data "aws_route53_zone" "tf_route53_zone" {
 
 resource "aws_acm_certificate" "tf_acm_alb_cert" {
   domain_name               = var.acm_domain_name
-  subject_alternative_names = [var.acm_sans]
+  subject_alternative_names = var.acm_sans
   validation_method         = "DNS"
 
   tags = {

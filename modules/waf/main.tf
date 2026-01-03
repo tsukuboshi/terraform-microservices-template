@@ -3,7 +3,7 @@ resource "aws_wafv2_ip_set" "tf_wafv2_ip_set" {
   name               = "${var.system}-${var.project}-${var.environment}-${var.resourcetype}-ips"
   scope              = "REGIONAL"
   ip_address_version = "IPV4"
-  addresses          = var.waf_ip_list
+  addresses          = var.waf_ips
 }
 
 resource "aws_wafv2_web_acl" "tf_wafv2_web_acl" {

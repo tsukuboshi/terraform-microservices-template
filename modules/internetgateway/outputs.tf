@@ -4,6 +4,6 @@
 #
 # ====================
 
-output "internet_route_id" {
-  value = aws_route.tf_route_igw.id
+output "internet_gateway_id" {
+  value = aws_internet_gateway.tf_igw.id
 }

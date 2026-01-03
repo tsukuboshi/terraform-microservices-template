@@ -4,20 +4,38 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "backup_vault_name" {}
+variable "backup_vault_name" {
+  type = string
+}
 
-variable "backup_role_arn" {}
+variable "backup_role_arn" {
+  type = string
+}
 
-variable "schedule_expression" {}
+variable "schedule_expression" {
+  type = string
+}
 
-variable "delete_after_days" {}
+variable "delete_after_days" {
+  type = number
+}
 
-variable "backup_tag_key" {}
+variable "backup_tag_key" {
+  type = string
+}
