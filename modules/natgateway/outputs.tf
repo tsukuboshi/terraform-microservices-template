@@ -5,5 +5,5 @@
 # ====================
 
 output "internet_route_ids" {
-  value = { for k, v in aws_route.tf_route_ngw : k => v.id }
+  value = { for route_name, route in aws_route.tf_route_ngw : route_name => route.id }
 }
