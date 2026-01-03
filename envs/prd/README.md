@@ -117,11 +117,10 @@
 | <a name="module_isolated_1c_subnet"></a> [isolated\_1c\_subnet](#module\_isolated\_1c\_subnet) | ../../modules/subnet | n/a |
 | <a name="module_isolated_networkacl"></a> [isolated\_networkacl](#module\_isolated\_networkacl) | ../../modules/networkacl | n/a |
 | <a name="module_isolated_routetable"></a> [isolated\_routetable](#module\_isolated\_routetable) | ../../modules/routetable | n/a |
-| <a name="module_private_1a_ngw_1a_route"></a> [private\_1a\_ngw\_1a\_route](#module\_private\_1a\_ngw\_1a\_route) | ../../modules/route | n/a |
+| <a name="module_private_1a_ngw_route"></a> [private\_1a\_ngw\_route](#module\_private\_1a\_ngw\_route) | ../../modules/route | n/a |
 | <a name="module_private_1a_routetable"></a> [private\_1a\_routetable](#module\_private\_1a\_routetable) | ../../modules/routetable | n/a |
 | <a name="module_private_1a_subnet"></a> [private\_1a\_subnet](#module\_private\_1a\_subnet) | ../../modules/subnet | n/a |
-| <a name="module_private_1c_ngw_1a_route"></a> [private\_1c\_ngw\_1a\_route](#module\_private\_1c\_ngw\_1a\_route) | ../../modules/route | n/a |
-| <a name="module_private_1c_ngw_1c_route"></a> [private\_1c\_ngw\_1c\_route](#module\_private\_1c\_ngw\_1c\_route) | ../../modules/route | n/a |
+| <a name="module_private_1c_ngw_route"></a> [private\_1c\_ngw\_route](#module\_private\_1c\_ngw\_route) | ../../modules/route | n/a |
 | <a name="module_private_1c_routetable"></a> [private\_1c\_routetable](#module\_private\_1c\_routetable) | ../../modules/routetable | n/a |
 | <a name="module_private_1c_subnet"></a> [private\_1c\_subnet](#module\_private\_1c\_subnet) | ../../modules/subnet | n/a |
 | <a name="module_private_networkacl"></a> [private\_networkacl](#module\_private\_networkacl) | ../../modules/networkacl | n/a |

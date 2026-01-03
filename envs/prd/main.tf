@@ -179,17 +179,9 @@ module "public_1a_natgateway" {
   igw_id       = module.internetgateway.internet_gateway_id
 }
 
-module "private_1a_ngw_1a_route" {
+module "private_1a_ngw_route" {
   source                 = "../../modules/route"
   route_table_id         = module.private_1a_routetable.route_table_id
-  nat_gateway_id         = module.public_1a_natgateway.nat_gateway_id
-  destination_cidr_block = "0.0.0.0/0"
-}
-
-module "private_1c_ngw_1a_route" {
-  count                  = var.multi_az ? 0 : 1
-  source                 = "../../modules/route"
-  route_table_id         = module.private_1c_routetable.route_table_id
   nat_gateway_id         = module.public_1a_natgateway.nat_gateway_id
   destination_cidr_block = "0.0.0.0/0"
 }
@@ -205,11 +197,10 @@ module "public_1c_natgateway" {
   igw_id       = module.internetgateway.internet_gateway_id
 }
 
-module "private_1c_ngw_1c_route" {
-  count                  = var.multi_az ? 1 : 0
+module "private_1c_ngw_route" {
   source                 = "../../modules/route"
   route_table_id         = module.private_1c_routetable.route_table_id
-  nat_gateway_id         = module.public_1c_natgateway[0].nat_gateway_id
+  nat_gateway_id         = var.multi_az ? module.public_1c_natgateway[0].nat_gateway_id : module.public_1a_natgateway.nat_gateway_id
   destination_cidr_block = "0.0.0.0/0"
 }
 
@@ -811,7 +802,7 @@ module "ecs_cluster" {
   project            = var.project
   environment        = var.environment
   resourcetype       = var.service_rsrc_type_ecs
-  outbound_route_ids = [module.private_1a_ngw_1a_route.route_id]
+  outbound_route_ids = [module.private_1a_ngw_route.route_id, module.private_1c_ngw_route.route_id]
 }
 
 module "ecs_service" {
@@ -859,7 +850,7 @@ module "ecs_task" {
   ecr_repository_url         = module.ecr.ecr_repository_url
   error_log_group_name       = module.frontend_error_log_group.log_group_name
   ecr_app_push_id            = module.ecr_app_push.docker_push_id
-  outbound_route_ids         = [module.private_1a_ngw_1a_route.route_id]
+  outbound_route_ids         = [module.private_1a_ngw_route.route_id, module.private_1c_ngw_route.route_id]
 }
 
 module "frontend_error_log_group" {
