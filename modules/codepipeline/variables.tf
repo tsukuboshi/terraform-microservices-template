@@ -26,9 +26,7 @@ variable "artifact_bucket" {}
 
 variable "codebuild_app_project_id" {}
 
-variable "has_rolling_update" {}
-
-variable "has_blue_green_deployment" {}
+variable "deployment_strategy" {}
 
 variable "enable_approval_stage" {}
 

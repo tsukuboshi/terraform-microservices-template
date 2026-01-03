@@ -4,13 +4,13 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.10.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.27.0 |
 
 ## Modules
 
@@ -95,6 +95,9 @@
 | <a name="module_iam_codepipeline_role"></a> [iam\_codepipeline\_role](#module\_iam\_codepipeline\_role) | ../../modules/iamrole | n/a |
 | <a name="module_iam_codepipeline_role_bucket_policy_attach"></a> [iam\_codepipeline\_role\_bucket\_policy\_attach](#module\_iam\_codepipeline\_role\_bucket\_policy\_attach) | ../../modules/iamrolepolicyattach | n/a |
 | <a name="module_iam_ecs_exec_policy"></a> [iam\_ecs\_exec\_policy](#module\_iam\_ecs\_exec\_policy) | ../../modules/iampolicy | n/a |
+| <a name="module_iam_ecs_infra_policy"></a> [iam\_ecs\_infra\_policy](#module\_iam\_ecs\_infra\_policy) | ../../modules/iamservierolepolicy | n/a |
+| <a name="module_iam_ecs_infra_role"></a> [iam\_ecs\_infra\_role](#module\_iam\_ecs\_infra\_role) | ../../modules/iamrole | n/a |
+| <a name="module_iam_ecs_infra_role_policy_attach"></a> [iam\_ecs\_infra\_role\_policy\_attach](#module\_iam\_ecs\_infra\_role\_policy\_attach) | ../../modules/iamrolepolicyattach | n/a |
 | <a name="module_iam_ecs_s3_policy"></a> [iam\_ecs\_s3\_policy](#module\_iam\_ecs\_s3\_policy) | ../../modules/iampolicy | n/a |
 | <a name="module_iam_ecs_secret_policy"></a> [iam\_ecs\_secret\_policy](#module\_iam\_ecs\_secret\_policy) | ../../modules/iampolicy | n/a |
 | <a name="module_iam_ecs_task_exec_policy"></a> [iam\_ecs\_task\_exec\_policy](#module\_iam\_ecs\_task\_exec\_policy) | ../../modules/iamservierolepolicy | n/a |
@@ -188,7 +191,7 @@
 | <a name="input_db_maintenance_window"></a> [db\_maintenance\_window](#input\_db\_maintenance\_window) | RDSのメンテナンスウィンドウ | `string` | `"Sat:16:00-Sat:16:30"` | no |
 | <a name="input_db_max_allocated_storage"></a> [db\_max\_allocated\_storage](#input\_db\_max\_allocated\_storage) | RDSの最大割り当てストレージサイズ（GB） | `number` | `1000` | no |
 | <a name="input_db_monitoring_interval"></a> [db\_monitoring\_interval](#input\_db\_monitoring\_interval) | RDSの拡張モニタリングの間隔（秒） | `number` | `60` | no |
-| <a name="input_db_performance_insights_enabled"></a> [db\_performance\_insights\_enabled](#input\_db\_performance\_insights\_enabled) | RDSのパフォーマンスインサイトを有効にするかどうか | `string` | `"true"` | no |
+| <a name="input_db_performance_insights_enabled"></a> [db\_performance\_insights\_enabled](#input\_db\_performance\_insights\_enabled) | RDSのパフォーマンスインサイトを有効にするかどうか | `bool` | `true` | no |
 | <a name="input_db_performance_insights_retention_period"></a> [db\_performance\_insights\_retention\_period](#input\_db\_performance\_insights\_retention\_period) | RDSのパフォーマンスインサイトの保持期間（日数） | `number` | `7` | no |
 | <a name="input_db_root_name"></a> [db\_root\_name](#input\_db\_root\_name) | RDSの管理者ユーザー名 | `string` | `"administrator"` | no |
 | <a name="input_db_secret_rotate"></a> [db\_secret\_rotate](#input\_db\_secret\_rotate) | RDSのシークレットローテーションを有効にするかどうか | `bool` | `false` | no |
@@ -197,6 +200,7 @@
 | <a name="input_db_storage_type"></a> [db\_storage\_type](#input\_db\_storage\_type) | RDSのストレージタイプ | `string` | `"gp3"` | no |
 | <a name="input_deletion_protection"></a> [deletion\_protection](#input\_deletion\_protection) | リソースの削除保護を有効にするかどうか | `bool` | `true` | no |
 | <a name="input_deployment_config_name"></a> [deployment\_config\_name](#input\_deployment\_config\_name) | CodeDeployのデプロイ設定名 | `string` | `"CodeDeployDefault.ECSAllAtOnce"` | no |
+| <a name="input_deployment_strategy"></a> [deployment\_strategy](#input\_deployment\_strategy) | デプロイ戦略 (null: CI/CDなし, ecs\_rolling\_update: ECSローリングアップデート, ecs\_blue\_green\_deployment: ECSネイティブのブルーグリーン, codedeploy\_blue\_green\_deployment: CodeDeployブルーグリーン) | `string` | `null` | no |
 | <a name="input_ecs_service_desired_count"></a> [ecs\_service\_desired\_count](#input\_ecs\_service\_desired\_count) | ECSサービスの所望数 | `number` | `2` | no |
 | <a name="input_ecs_task_cpu"></a> [ecs\_task\_cpu](#input\_ecs\_task\_cpu) | ECSタスクのCPU | `number` | `2048` | no |
 | <a name="input_ecs_task_memory"></a> [ecs\_task\_memory](#input\_ecs\_task\_memory) | ECSタスクのメモリ | `number` | `4096` | no |
@@ -213,10 +217,8 @@
 | <a name="input_github_taskdef_file_path"></a> [github\_taskdef\_file\_path](#input\_github\_taskdef\_file\_path) | GitHubリポジトリ内のtaskdefファイルのパス | `string` | `"taskdef.json"` | no |
 | <a name="input_green_http_port"></a> [green\_http\_port](#input\_green\_http\_port) | GreenターゲットグループのHTTPポート番号 | `number` | `8080` | no |
 | <a name="input_green_https_port"></a> [green\_https\_port](#input\_green\_https\_port) | GreenターゲットグループのHTTPSポート番号 | `number` | `8443` | no |
-| <a name="input_has_blue_green_deployment"></a> [has\_blue\_green\_deployment](#input\_has\_blue\_green\_deployment) | ブルーグリーンデプロイメントを有効にするかどうか | `bool` | `true` | no |
 | <a name="input_has_public_ip_to_computer"></a> [has\_public\_ip\_to\_computer](#input\_has\_public\_ip\_to\_computer) | EC2インスタンスにパブリックIPを割り当てるかどうか | `bool` | `false` | no |
 | <a name="input_has_public_ip_to_container"></a> [has\_public\_ip\_to\_container](#input\_has\_public\_ip\_to\_container) | コンテナにパブリックIPを割り当てるかどうか | `bool` | `false` | no |
-| <a name="input_has_rolling_update"></a> [has\_rolling\_update](#input\_has\_rolling\_update) | ローリングアップデートを有効にするかどうか | `bool` | `false` | no |
 | <a name="input_isolated_subnet_1a_cidr_block"></a> [isolated\_subnet\_1a\_cidr\_block](#input\_isolated\_subnet\_1a\_cidr\_block) | 分離サブネット1aのCIDRブロック | `string` | `"10.0.4.0/24"` | no |
 | <a name="input_isolated_subnet_1c_cidr_block"></a> [isolated\_subnet\_1c\_cidr\_block](#input\_isolated\_subnet\_1c\_cidr\_block) | 分離サブネット1cのCIDRブロック | `string` | `"10.0.5.0/24"` | no |
 | <a name="input_multi_az"></a> [multi\_az](#input\_multi\_az) | RDSのマルチAZ配置を有効にするかどうか | `bool` | `true` | no |

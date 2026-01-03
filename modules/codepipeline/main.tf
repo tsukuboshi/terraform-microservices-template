@@ -82,7 +82,7 @@ resource "aws_codepipeline" "tf_codepipeline" {
     name = "Deploy"
 
     dynamic "action" {
-      for_each = var.has_rolling_update ? [1] : []
+      for_each = var.deployment_strategy != "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name            = "Deploy"
         category        = "Deploy"
@@ -99,7 +99,7 @@ resource "aws_codepipeline" "tf_codepipeline" {
     }
 
     dynamic "action" {
-      for_each = var.has_blue_green_deployment ? [1] : []
+      for_each = var.deployment_strategy == "codedeploy_blue_green_deployment" ? [1] : []
       content {
         name            = "Deploy"
         category        = "Deploy"

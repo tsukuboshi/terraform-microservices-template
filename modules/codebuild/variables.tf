@@ -14,9 +14,7 @@ variable "resourcetype" {}
 
 variable "codebuild_role_arn" {}
 
-variable "has_rolling_update" {}
-
-variable "has_blue_green_deployment" {}
+variable "deployment_strategy" {}
 
 variable "codebuild_vpc_id" {}
 
@@ -24,11 +22,11 @@ variable "codebuild_subnet_ids" {}
 
 variable "codebuild_sg_ids" {}
 
-variable "buildspec_bgdeploy_file" {}
+variable "buildspec_codedeploy_file" {}
 
 variable "docker_file_path" {}
 
-variable "buildspec_rollingupdate_file" {}
+variable "buildspec_ecs_file" {}
 
 variable "codebuild_log_group_name" {}
 

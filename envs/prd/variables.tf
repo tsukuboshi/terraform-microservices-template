@@ -387,6 +387,21 @@ variable "allow_latest_tag" {
   type        = bool
 }
 
+variable "desktop_app_name" {
+  description = "ローカル開発で使用するデスクトップアプリケーション名（null: 使用しない, docker_desktop: Docker Desktop, rancher_desktop: Rancher Desktop）"
+  default     = null
+  type        = string
+  nullable    = true
+
+  validation {
+    condition = var.desktop_app_name == null ? true : contains([
+      "docker_desktop",
+      "rancher_desktop"
+    ], var.desktop_app_name)
+    error_message = "desktop_app_name must be null or one of: docker_desktop, rancher_desktop"
+  }
+}
+
 # ECS #
 variable "app_container_port" {
   description = "アプリケーションコンテナのポート番号"
@@ -418,16 +433,20 @@ variable "has_public_ip_to_container" {
   type        = bool
 }
 
-variable "has_rolling_update" {
-  description = "ローリングアップデートを有効にするかどうか"
-  default     = false
-  type        = bool
-}
+variable "deployment_strategy" {
+  description = "デプロイ戦略 (null: CI/CDなし, ecs_rolling_update: ECSローリングアップデート, ecs_blue_green_deployment: ECSネイティブのブルーグリーン, codedeploy_blue_green_deployment: CodeDeployブルーグリーン)"
+  default     = null
+  type        = string
+  nullable    = true
 
-variable "has_blue_green_deployment" {
-  description = "ブルーグリーンデプロイメントを有効にするかどうか"
-  default     = true
-  type        = bool
+  validation {
+    condition = var.deployment_strategy == null ? true : contains([
+      "ecs_rolling_update",
+      "ecs_blue_green_deployment",
+      "codedeploy_blue_green_deployment"
+    ], var.deployment_strategy)
+    error_message = "deployment_strategy must be null or one of: ecs_rolling_update, ecs_blue_green_deployment, codedeploy_blue_green_deployment"
+  }
 }
 
 # RDS #
@@ -523,8 +542,8 @@ variable "db_maintenance_window" {
 
 variable "db_performance_insights_enabled" {
   description = "RDSのパフォーマンスインサイトを有効にするかどうか"
-  default     = "true"
-  type        = string
+  default     = true
+  type        = bool
 }
 
 variable "db_performance_insights_retention_period" {
