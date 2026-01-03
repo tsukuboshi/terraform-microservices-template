@@ -35,7 +35,8 @@ resource "aws_nat_gateway" "tf_ngw" {
 # ====================
 
 resource "aws_route" "tf_route_ngw" {
-  route_table_id         = var.route_table_id
+  for_each               = toset(var.route_table_ids)
+  route_table_id         = each.value
   nat_gateway_id         = aws_nat_gateway.tf_ngw.id
   destination_cidr_block = "0.0.0.0/0"
 }

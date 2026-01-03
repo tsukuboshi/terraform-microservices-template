@@ -41,6 +41,7 @@
 | <a name="module_codeconnection"></a> [codeconnection](#module\_codeconnection) | ../../modules/codeconnection | n/a |
 | <a name="module_codedeploy"></a> [codedeploy](#module\_codedeploy) | ../../modules/codedeploy | n/a |
 | <a name="module_codepipeline"></a> [codepipeline](#module\_codepipeline) | ../../modules/codepipeline | n/a |
+| <a name="module_docker_start"></a> [docker\_start](#module\_docker\_start) | ../../modules/dockerstart | n/a |
 | <a name="module_ecr"></a> [ecr](#module\_ecr) | ../../modules/ecr | n/a |
 | <a name="module_ecr_app_push"></a> [ecr\_app\_push](#module\_ecr\_app\_push) | ../../modules/dockerpush | n/a |
 | <a name="module_ecr_login"></a> [ecr\_login](#module\_ecr\_login) | ../../modules/ecrlogin | n/a |
@@ -187,7 +188,6 @@
 | <a name="input_db_backup_retention_period"></a> [db\_backup\_retention\_period](#input\_db\_backup\_retention\_period) | RDSの自動バックアップ保持期間（日数） | `number` | `0` | no |
 | <a name="input_db_backup_window"></a> [db\_backup\_window](#input\_db\_backup\_window) | RDSの自動バックアップウィンドウ | `string` | `"15:00-15:30"` | no |
 | <a name="input_db_instance_class"></a> [db\_instance\_class](#input\_db\_instance\_class) | RDSインスタンスクラス | `string` | `"db.m7g.large"` | no |
-| <a name="input_db_instance_count"></a> [db\_instance\_count](#input\_db\_instance\_count) | RDSインスタンスの数 | `number` | `2` | no |
 | <a name="input_db_maintenance_window"></a> [db\_maintenance\_window](#input\_db\_maintenance\_window) | RDSのメンテナンスウィンドウ | `string` | `"Sat:16:00-Sat:16:30"` | no |
 | <a name="input_db_max_allocated_storage"></a> [db\_max\_allocated\_storage](#input\_db\_max\_allocated\_storage) | RDSの最大割り当てストレージサイズ（GB） | `number` | `1000` | no |
 | <a name="input_db_monitoring_interval"></a> [db\_monitoring\_interval](#input\_db\_monitoring\_interval) | RDSの拡張モニタリングの間隔（秒） | `number` | `60` | no |
@@ -201,6 +201,7 @@
 | <a name="input_deletion_protection"></a> [deletion\_protection](#input\_deletion\_protection) | リソースの削除保護を有効にするかどうか | `bool` | `true` | no |
 | <a name="input_deployment_config_name"></a> [deployment\_config\_name](#input\_deployment\_config\_name) | CodeDeployのデプロイ設定名 | `string` | `"CodeDeployDefault.ECSAllAtOnce"` | no |
 | <a name="input_deployment_strategy"></a> [deployment\_strategy](#input\_deployment\_strategy) | デプロイ戦略 (null: CI/CDなし, ecs\_rolling\_update: ECSローリングアップデート, ecs\_blue\_green\_deployment: ECSネイティブのブルーグリーン, codedeploy\_blue\_green\_deployment: CodeDeployブルーグリーン) | `string` | `null` | no |
+| <a name="input_desktop_app_name"></a> [desktop\_app\_name](#input\_desktop\_app\_name) | ローカル開発で使用するデスクトップアプリケーション名（null: 使用しない, docker\_desktop: Docker Desktop, rancher\_desktop: Rancher Desktop） | `string` | `null` | no |
 | <a name="input_ecs_service_desired_count"></a> [ecs\_service\_desired\_count](#input\_ecs\_service\_desired\_count) | ECSサービスの所望数 | `number` | `2` | no |
 | <a name="input_ecs_task_cpu"></a> [ecs\_task\_cpu](#input\_ecs\_task\_cpu) | ECSタスクのCPU | `number` | `2048` | no |
 | <a name="input_ecs_task_memory"></a> [ecs\_task\_memory](#input\_ecs\_task\_memory) | ECSタスクのメモリ | `number` | `4096` | no |
@@ -221,7 +222,7 @@
 | <a name="input_has_public_ip_to_container"></a> [has\_public\_ip\_to\_container](#input\_has\_public\_ip\_to\_container) | コンテナにパブリックIPを割り当てるかどうか | `bool` | `false` | no |
 | <a name="input_isolated_subnet_1a_cidr_block"></a> [isolated\_subnet\_1a\_cidr\_block](#input\_isolated\_subnet\_1a\_cidr\_block) | 分離サブネット1aのCIDRブロック | `string` | `"10.0.4.0/24"` | no |
 | <a name="input_isolated_subnet_1c_cidr_block"></a> [isolated\_subnet\_1c\_cidr\_block](#input\_isolated\_subnet\_1c\_cidr\_block) | 分離サブネット1cのCIDRブロック | `string` | `"10.0.5.0/24"` | no |
-| <a name="input_multi_az"></a> [multi\_az](#input\_multi\_az) | RDSのマルチAZ配置を有効にするかどうか | `bool` | `true` | no |
+| <a name="input_multi_az"></a> [multi\_az](#input\_multi\_az) | マルチAZ配置を有効にするかどうか | `bool` | `true` | no |
 | <a name="input_naked_domain"></a> [naked\_domain](#input\_naked\_domain) | ベースドメイン名 | `string` | `null` | no |
 | <a name="input_network_rsrc_type_isolated"></a> [network\_rsrc\_type\_isolated](#input\_network\_rsrc\_type\_isolated) | 分離ネットワークリソースタイプの識別子 | `string` | `"isolated"` | no |
 | <a name="input_network_rsrc_type_private"></a> [network\_rsrc\_type\_private](#input\_network\_rsrc\_type\_private) | プライベートネットワークリソースタイプの識別子 | `string` | `"private"` | no |

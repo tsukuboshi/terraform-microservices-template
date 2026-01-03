@@ -62,10 +62,9 @@ resource "aws_ecs_service" "tf_ecs_service" {
     }
   }
 
-  # 自動デプロイ及び自動スケールでECSが更新された後に、Terraformでリソースの設定が上書きされる事を回避するための設定
+  # CodeDeployでALB及びECSタスクの設定が更新された後に、Terraformでリソースの設定が上書きされる事を回避するための設定
   lifecycle {
     ignore_changes = [
-      desired_count,
       task_definition,
       load_balancer
     ]
