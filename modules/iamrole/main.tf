@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "tf_policy_document" {
     effect = "Allow"
     principals {
       type        = "Service"
-      identifiers = [var.iam_role_principal_identifiers]
+      identifiers = var.iam_role_principal_identifiers
     }
     actions = ["sts:AssumeRole"]
 

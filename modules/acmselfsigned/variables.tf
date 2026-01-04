@@ -1,3 +1,7 @@
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "common_name" {}
+variable "common_name" {
+  type = string
+}

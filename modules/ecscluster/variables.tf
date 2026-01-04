@@ -4,14 +4,23 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
 variable "outbound_route_ids" {
+  type    = list(string)
   default = null
 }

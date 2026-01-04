@@ -56,7 +56,7 @@ resource "aws_lb_listener_rule" "tf_alb_lsnr_rule" {
     for_each = var.has_host_header ? [1] : []
     content {
       host_header {
-        values = [var.alb_lsnr_rule_host_header]
+        values = var.alb_lsnr_rule_host_header_values
       }
     }
   }
@@ -65,7 +65,7 @@ resource "aws_lb_listener_rule" "tf_alb_lsnr_rule" {
     for_each = var.has_path_pattern ? [1] : []
     content {
       path_pattern {
-        values = [var.alb_lsnr_rule_path_pattern]
+        values = var.alb_lsnr_rule_path_pattern_values
       }
     }
   }

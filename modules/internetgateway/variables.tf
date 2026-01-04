@@ -4,12 +4,18 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "vpc_id" {}
-
-variable "route_table_id" {}
+variable "vpc_id" {
+  type = string
+}

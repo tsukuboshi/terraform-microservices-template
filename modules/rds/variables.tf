@@ -4,68 +4,124 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "deletion_protection" {}
+variable "deletion_protection" {
+  type = bool
+}
 
-variable "multi_az" {}
+variable "multi_az" {
+  type = bool
+}
 
-variable "rds_port" {}
+variable "rds_port" {
+  type = number
+}
 
-variable "rds_engine" {}
+variable "rds_engine" {
+  type = string
+}
 
-variable "rds_engine_major_version" {}
+variable "rds_engine_major_version" {
+  type = string
+}
 
-variable "rds_engine_minor_version" {}
+variable "rds_engine_minor_version" {
+  type = string
+}
 
-variable "security_group_id" {}
+variable "security_group_ids" {
+  type = list(string)
+}
 
-variable "db_instance_class" {}
+variable "db_instance_class" {
+  type = string
+}
 
 variable "db_name" {
+  type    = string
   default = null
 }
 
-variable "db_root_name" {}
+variable "db_root_name" {
+  type = string
+}
 
-variable "db_storage_type" {}
+variable "db_storage_type" {
+  type = string
+}
 
-variable "db_allocated_storage" {}
+variable "db_allocated_storage" {
+  type = number
+}
 
-variable "db_max_allocated_storage" {}
+variable "db_max_allocated_storage" {
+  type = number
+}
 
-variable "db_storage_encrypted" {}
+variable "db_storage_encrypted" {
+  type = bool
+}
 
 variable "db_enabled_cloudwatch_logs_exports" {
+  type    = list(string)
   default = null
 }
 
-variable "db_backup_retention_period" {}
+variable "db_backup_retention_period" {
+  type = number
+}
 
-variable "db_backup_window" {}
+variable "db_backup_window" {
+  type = string
+}
 
-variable "db_maintenance_window" {}
+variable "db_maintenance_window" {
+  type = string
+}
 
-variable "db_performance_insights_enabled" {}
+variable "db_performance_insights_enabled" {
+  type = bool
+}
 
-variable "db_performance_insights_retention_period" {}
+variable "db_performance_insights_retention_period" {
+  type = number
+}
 
-variable "db_monitoring_role_arn" {}
+variable "db_monitoring_role_arn" {
+  type = string
+}
 
-variable "db_monitoring_interval" {}
+variable "db_monitoring_interval" {
+  type = number
+}
 
-variable "db_auto_minor_version_upgrade" {}
+variable "db_auto_minor_version_upgrade" {
+  type = bool
+}
 
-variable "isolated_1a_subnet_id" {}
+variable "subnet_ids" {
+  type = list(string)
+}
 
-variable "isolated_1c_subnet_id" {}
+variable "backup_tag_key" {
+  type = string
+}
 
-variable "backup_tag_key" {}
+variable "backup_tag_value" {
+  type = string
+}
 
-variable "backup_tag_value" {}
-
-variable "db_secret_rotate" {}
+variable "db_secret_rotate" {
+  type = bool
+}

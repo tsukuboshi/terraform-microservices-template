@@ -4,22 +4,34 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "account_id" {}
+variable "account_id" {
+  type = string
+}
 
-variable "force_destroy" {}
+variable "force_destroy" {
+  type = bool
+}
 
-variable "versioning_enabled" {}
+variable "versioning_enabled" {
+  type = bool
+}
 
-variable "object_expiration_days" {}
-
-variable "bucket_policy_document_file" {
-  default = "./src/bucket_policy_document.json"
+variable "object_expiration_days" {
+  type = number
 }

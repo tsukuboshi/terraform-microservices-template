@@ -4,40 +4,74 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "subnet_1a_id" {}
+variable "subnet_ids" {
+  type = list(string)
+}
 
-variable "subnet_1c_id" {}
+variable "associate_public_ip_address" {
+  type = bool
+}
 
-variable "associate_public_ip_address" {}
+variable "security_group_ids" {
+  type = list(string)
+}
 
-variable "security_group_id" {}
+variable "target_group_arn" {
+  type = string
+}
 
-variable "target_group_arn" {}
+variable "ecs_cluster_arn" {
+  type = string
+}
 
-variable "ecs_cluster_arn" {}
+variable "ecs_desired_count" {
+  type = number
+}
 
-variable "ecs_service_desired_count" {}
+variable "ecs_container_name" {
+  type = string
+}
 
-variable "ecs_container_name" {}
+variable "ecs_container_port" {
+  type = number
+}
 
-variable "ecs_container_port" {}
+variable "ecs_task_definition_arn" {
+  type = string
+}
 
-variable "ecs_task_definition_arn" {}
+variable "deployment_strategy" {
+  type = string
+}
 
-variable "deployment_strategy" {}
+variable "alternate_target_group_arn" {
+  type = string
+}
 
-variable "alternate_target_group_arn" {}
+variable "production_listener_rule_arn" {
+  type = string
+}
 
-variable "production_listener_rule_arn" {}
+variable "test_listener_rule_arn" {
+  type = string
+}
 
-variable "test_listener_rule_arn" {}
-
-variable "ecs_infra_role_arn" {}
+variable "ecs_infra_role_arn" {
+  type = string
+}

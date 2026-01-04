@@ -4,4 +4,6 @@
 #
 # ====================
 
-variable "iam_role_policy_arn" {}
+variable "iam_role_policy_arn" {
+  type = string
+}

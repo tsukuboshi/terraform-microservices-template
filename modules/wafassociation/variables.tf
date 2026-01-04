@@ -4,6 +4,10 @@
 #
 # ====================
 
-variable "resource_arn" {}
+variable "resource_arn" {
+  type = string
+}
 
-variable "waf_web_acl_arn" {}
+variable "waf_web_acl_arn" {
+  type = string
+}

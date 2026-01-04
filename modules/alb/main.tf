@@ -8,14 +8,8 @@ resource "aws_lb" "tf_alb" {
   internal           = false
   load_balancer_type = "application"
 
-  subnets = [
-    var.subnet_1a_id,
-    var.subnet_1c_id,
-  ]
-
-  security_groups = [
-    var.security_group_id
-  ]
+  subnets         = var.subnet_ids
+  security_groups = var.security_group_ids
 
   dynamic "access_logs" {
     for_each = var.has_access_logs ? [1] : []

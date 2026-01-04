@@ -27,16 +27,3 @@ resource "aws_nat_gateway" "tf_ngw" {
     Name = "${var.system}-${var.project}-${var.environment}-${var.resourcetype}-ngw"
   }
 }
-
-# ====================
-#
-# Route
-#
-# ====================
-
-resource "aws_route" "tf_route_ngw" {
-  for_each               = toset(var.route_table_ids)
-  route_table_id         = each.value
-  nat_gateway_id         = aws_nat_gateway.tf_ngw.id
-  destination_cidr_block = "0.0.0.0/0"
-}

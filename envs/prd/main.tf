@@ -155,35 +155,53 @@ module "isolated_routetable" {
 }
 
 module "internetgateway" {
-  source         = "../../modules/internetgateway"
-  system         = var.system
-  project        = var.project
-  environment    = var.environment
-  vpc_id         = module.vpc.vpc_id
-  route_table_id = module.public_routetable.route_table_id
+  source      = "../../modules/internetgateway"
+  system      = var.system
+  project     = var.project
+  environment = var.environment
+  vpc_id      = module.vpc.vpc_id
+}
+
+module "public_igw_route" {
+  source                 = "../../modules/route"
+  route_table_id         = module.public_routetable.route_table_id
+  gateway_id             = module.internetgateway.internet_gateway_id
+  destination_cidr_block = "0.0.0.0/0"
 }
 
 module "public_1a_natgateway" {
-  source          = "../../modules/natgateway"
-  system          = var.system
-  project         = var.project
-  environment     = var.environment
-  resourcetype    = "${var.network_rsrc_type_public}-${var.az_short_name_1a}"
-  subnet_id       = module.public_1a_subnet.subnet_id
-  igw_id          = module.internetgateway.internet_route_id
-  route_table_ids = var.multi_az ? [module.private_1a_routetable.route_table_id] : [module.private_1a_routetable.route_table_id, module.private_1c_routetable.route_table_id]
+  source       = "../../modules/natgateway"
+  system       = var.system
+  project      = var.project
+  environment  = var.environment
+  resourcetype = "${var.network_rsrc_type_public}-${var.az_short_name_1a}"
+  subnet_id    = module.public_1a_subnet.subnet_id
+  igw_id       = module.internetgateway.internet_gateway_id
+}
+
+module "private_1a_ngw_route" {
+  source                 = "../../modules/route"
+  route_table_id         = module.private_1a_routetable.route_table_id
+  nat_gateway_id         = module.public_1a_natgateway.nat_gateway_id
+  destination_cidr_block = "0.0.0.0/0"
 }
 
 module "public_1c_natgateway" {
-  count           = var.multi_az ? 1 : 0
-  source          = "../../modules/natgateway"
-  system          = var.system
-  project         = var.project
-  environment     = var.environment
-  resourcetype    = "${var.network_rsrc_type_public}-${var.az_short_name_1c}"
-  subnet_id       = module.public_1c_subnet.subnet_id
-  igw_id          = module.internetgateway.internet_route_id
-  route_table_ids = [module.private_1c_routetable.route_table_id]
+  count        = var.az_count >= 2 ? 1 : 0
+  source       = "../../modules/natgateway"
+  system       = var.system
+  project      = var.project
+  environment  = var.environment
+  resourcetype = "${var.network_rsrc_type_public}-${var.az_short_name_1c}"
+  subnet_id    = module.public_1c_subnet.subnet_id
+  igw_id       = module.internetgateway.internet_gateway_id
+}
+
+module "private_1c_ngw_route" {
+  source                 = "../../modules/route"
+  route_table_id         = module.private_1c_routetable.route_table_id
+  nat_gateway_id         = var.az_count >= 2 ? module.public_1c_natgateway[0].nat_gateway_id : module.public_1a_natgateway.nat_gateway_id
+  destination_cidr_block = "0.0.0.0/0"
 }
 
 module "vpce_ecr_dkr" {
@@ -467,14 +485,13 @@ module "vpce_sg_egress_rule_all" {
 }
 
 module "alb" {
-  source                 = "../../modules/alb"
-  system                 = var.system
-  project                = var.project
-  environment            = var.environment
-  deletion_protection    = var.deletion_protection
-  security_group_id      = module.alb_sg.security_group_id
-  subnet_1a_id           = module.public_1a_subnet.subnet_id
-  subnet_1c_id           = module.public_1c_subnet.subnet_id
+  source              = "../../modules/alb"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  deletion_protection = var.deletion_protection
+  subnet_ids          = [module.public_1a_subnet.subnet_id, module.public_1c_subnet.subnet_id]
+  security_group_ids  = [module.alb_sg.security_group_id]
   has_access_logs        = true
   access_log_bucket_name = module.s3_alb_log_bucket.bucket_name
   access_log_prefix      = var.access_log_prefix
@@ -505,17 +522,17 @@ module "alb_blue_https_listener" {
 }
 
 module "alb_blue_tg" {
-  source                    = "../../modules/albtargetgroup"
-  system                    = var.system
-  project                   = var.project
-  environment               = var.environment
-  resourcetype              = "blue"
-  vpc_id                    = module.vpc.vpc_id
-  alb_target_type           = var.alb_target_type_ecs
-  alb_lsnr_https_arn        = module.alb_blue_https_listener.listener_arn
-  alb_lsnr_rule_priority    = 100
-  has_host_header           = true
-  alb_lsnr_rule_host_header = var.naked_domain == null ? module.alb.alb_dns_name : "${var.sub_domain}.${var.naked_domain}"
+  source                           = "../../modules/albtargetgroup"
+  system                           = var.system
+  project                          = var.project
+  environment                      = var.environment
+  resourcetype                     = "blue"
+  vpc_id                           = module.vpc.vpc_id
+  alb_target_type                  = var.alb_target_type_ecs
+  alb_lsnr_https_arn               = module.alb_blue_https_listener.listener_arn
+  alb_lsnr_rule_priority           = 100
+  has_host_header                  = true
+  alb_lsnr_rule_host_header_values = [var.naked_domain == null ? module.alb.alb_dns_name : "${var.sub_domain}.${var.naked_domain}"]
 }
 
 module "alb_green_http_listener" {
@@ -544,18 +561,18 @@ module "alb_green_https_listener" {
 }
 
 module "alb_green_tg" {
-  count                     = var.deployment_strategy != "ecs_rolling_update" ? 1 : 0
-  source                    = "../../modules/albtargetgroup"
-  system                    = var.system
-  project                   = var.project
-  environment               = var.environment
-  resourcetype              = "green"
-  vpc_id                    = module.vpc.vpc_id
-  alb_target_type           = var.alb_target_type_ecs
-  alb_lsnr_https_arn        = module.alb_green_https_listener[0].listener_arn
-  alb_lsnr_rule_priority    = 100
-  has_host_header           = true
-  alb_lsnr_rule_host_header = var.naked_domain == null ? module.alb.alb_dns_name : "${var.sub_domain}.${var.naked_domain}"
+  count                            = var.deployment_strategy != "ecs_rolling_update" ? 1 : 0
+  source                           = "../../modules/albtargetgroup"
+  system                           = var.system
+  project                          = var.project
+  environment                      = var.environment
+  resourcetype                     = "green"
+  vpc_id                           = module.vpc.vpc_id
+  alb_target_type                  = var.alb_target_type_ecs
+  alb_lsnr_https_arn               = module.alb_green_https_listener[0].listener_arn
+  alb_lsnr_rule_priority           = 100
+  has_host_header                  = true
+  alb_lsnr_rule_host_header_values = [var.naked_domain == null ? module.alb.alb_dns_name : "${var.sub_domain}.${var.naked_domain}"]
 }
 
 module "s3_alb_log_bucket" {
@@ -576,15 +593,15 @@ module "elb_service_account" {
 }
 
 module "s3_alb_log_bucket_policy" {
-  source                      = "../../modules/s3bucketpolicy"
-  bucket_name                 = module.s3_alb_log_bucket.bucket_name
-  bucket_id                   = module.s3_alb_log_bucket.bucket_id
-  account_id                  = module.account.id
-  effect                      = "Allow"
-  principals_type             = "AWS"
-  principals_identifiers_list = ["arn:aws:iam::${module.elb_service_account.elb_service_account_id}:root"]
-  action_list                 = ["s3:PutObject"]
-  resource_arn_list           = ["arn:aws:s3:::${module.s3_alb_log_bucket.bucket_name}/${var.access_log_prefix}/AWSLogs/${module.account.id}/*"]
+  source                = "../../modules/s3bucketpolicy"
+  bucket_name           = module.s3_alb_log_bucket.bucket_name
+  bucket_id             = module.s3_alb_log_bucket.bucket_id
+  account_id            = module.account.id
+  effect                = "Allow"
+  principals_type       = "AWS"
+  principal_identifiers = ["arn:aws:iam::${module.elb_service_account.elb_service_account_id}:root"]
+  api_actions           = ["s3:PutObject"]
+  resource_arns         = ["arn:aws:s3:::${module.s3_alb_log_bucket.bucket_name}/${var.access_log_prefix}/AWSLogs/${module.account.id}/*"]
 }
 
 module "waf" {
@@ -595,7 +612,7 @@ module "waf" {
   resourcetype                   = var.waf_rsrc_type_alb
   waf_default_action_block_mode  = var.waf_default_action_block_mode
   waf_ip_rule_allow_mode         = var.waf_ip_rule_allow_mode
-  waf_ip_list                    = var.waf_ip_list
+  waf_ips                        = var.waf_ips
   waf_managed_rule_block_mode    = var.waf_managed_rule_block_mode
   waf_cloudwatch_metrics_enabled = true
   waf_sampled_requests_enabled   = true
@@ -673,33 +690,33 @@ module "ecr_app_push" {
 }
 
 module "iam_ecs_exec_policy" {
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = var.service_rsrc_type_ecs
-  action_list       = ["ssmmessages:CreateControlChannel", "ssmmessages:CreateDataChannel", "ssmmessages:OpenControlChannel", "ssmmessages:OpenDataChannel"]
-  resource_arn_list = ["*"]
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = var.service_rsrc_type_ecs
+  api_actions   = ["ssmmessages:CreateControlChannel", "ssmmessages:CreateDataChannel", "ssmmessages:OpenControlChannel", "ssmmessages:OpenDataChannel"]
+  resource_arns = ["*"]
 }
 
 module "iam_ecs_s3_policy" {
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = var.policy_rsrc_type_ssm
-  action_list       = ["s3:PutObject", "s3:PutObjectAcl", "s3:GetEncryptionConfiguration"]
-  resource_arn_list = [module.ssm_session_log_bucket.bucket_arn, "${module.ssm_session_log_bucket.bucket_arn}/*"]
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = var.policy_rsrc_type_ssm
+  api_actions   = ["s3:PutObject", "s3:PutObjectAcl", "s3:GetEncryptionConfiguration"]
+  resource_arns = [module.ssm_session_log_bucket.bucket_arn, "${module.ssm_session_log_bucket.bucket_arn}/*"]
 }
 
 module "iam_ecs_secret_policy" {
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = var.policy_rsrc_type_secret
-  action_list       = ["secretsmanager:GetSecretValue"]
-  resource_arn_list = ["${module.rds.rds_db_secret_arn}"]
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = var.policy_rsrc_type_secret
+  api_actions   = ["secretsmanager:GetSecretValue"]
+  resource_arns = ["${module.rds.rds_db_secret_arn}"]
 }
 
 module "iam_ecs_task_role" {
@@ -708,7 +725,7 @@ module "iam_ecs_task_role" {
   project                        = var.project
   environment                    = var.environment
   resourcetype                   = "${var.service_rsrc_type_ecs}-task"
-  iam_role_principal_identifiers = "ecs-tasks.amazonaws.com"
+  iam_role_principal_identifiers = ["ecs-tasks.amazonaws.com"]
 }
 
 module "iam_ecs_task_role_exec_policy_attach" {
@@ -740,7 +757,7 @@ module "iam_ecs_task_exec_role" {
   project                        = var.project
   environment                    = var.environment
   resourcetype                   = "${var.service_rsrc_type_ecs}-exec"
-  iam_role_principal_identifiers = "ecs-tasks.amazonaws.com"
+  iam_role_principal_identifiers = ["ecs-tasks.amazonaws.com"]
 }
 
 module "iam_ecs_task_exec_role_policy_attach" {
@@ -768,7 +785,7 @@ module "iam_ecs_infra_role" {
   project                        = var.project
   environment                    = var.environment
   resourcetype                   = "${var.service_rsrc_type_ecs}-infra"
-  iam_role_principal_identifiers = "ecs.amazonaws.com"
+  iam_role_principal_identifiers = ["ecs.amazonaws.com"]
 }
 
 module "iam_ecs_infra_role_policy_attach" {
@@ -784,7 +801,7 @@ module "ecs_cluster" {
   project            = var.project
   environment        = var.environment
   resourcetype       = var.service_rsrc_type_ecs
-  outbound_route_ids = values(module.public_1a_natgateway.internet_route_ids)
+  outbound_route_ids = [module.private_1a_ngw_route.route_id, module.private_1c_ngw_route.route_id]
 }
 
 module "ecs_service" {
@@ -794,14 +811,13 @@ module "ecs_service" {
   environment                  = var.environment
   resourcetype                 = var.service_rsrc_type_ecs
   ecs_cluster_arn              = module.ecs_cluster.ecs_cluster_arn
-  ecs_service_desired_count    = var.ecs_service_desired_count
+  ecs_desired_count            = var.task_count_per_az * var.az_count
   ecs_container_name           = var.app_container_name
   ecs_container_port           = var.app_container_port
   associate_public_ip_address  = var.has_public_ip_to_container
   deployment_strategy          = var.deployment_strategy
-  subnet_1a_id                 = module.private_1a_subnet.subnet_id
-  subnet_1c_id                 = module.private_1c_subnet.subnet_id
-  security_group_id            = module.ecs_sg.security_group_id
+  subnet_ids                   = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids           = [module.ecs_sg.security_group_id]
   target_group_arn             = module.alb_blue_tg.alb_tg_arn
   ecs_task_definition_arn      = module.ecs_task.ecs_task_arn
   alternate_target_group_arn   = var.deployment_strategy == "ecs_blue_green_deployment" ? module.alb_green_tg[0].alb_tg_arn : null
@@ -832,7 +848,7 @@ module "ecs_task" {
   ecr_repository_url         = module.ecr.ecr_repository_url
   error_log_group_name       = module.frontend_error_log_group.log_group_name
   ecr_app_push_id            = module.ecr_app_push.docker_push_id
-  outbound_route_ids         = values(module.public_1a_natgateway.internet_route_ids)
+  outbound_route_ids         = [module.private_1a_ngw_route.route_id, module.private_1c_ngw_route.route_id]
 }
 
 module "frontend_error_log_group" {
@@ -851,7 +867,7 @@ module "iam_rds_role" {
   project                        = var.project
   environment                    = var.environment
   resourcetype                   = var.service_rsrc_type_rds
-  iam_role_principal_identifiers = "monitoring.rds.amazonaws.com"
+  iam_role_principal_identifiers = ["monitoring.rds.amazonaws.com"]
 }
 
 module "iam_rds_role_policy_attach" {
@@ -866,12 +882,12 @@ module "rds" {
   project                  = var.project
   environment              = var.environment
   deletion_protection      = var.deletion_protection
-  multi_az                 = var.multi_az
+  multi_az                 = var.az_count >= 2
   rds_engine               = var.rds_engine
   rds_engine_major_version = var.rds_engine_major_version
   rds_engine_minor_version = var.rds_engine_minor_version
   rds_port                 = var.rds_port
-  security_group_id        = module.rds_sg.security_group_id
+  security_group_ids       = [module.rds_sg.security_group_id]
   db_instance_class        = var.db_instance_class
   db_name                  = "${var.system}${var.project}${var.environment}db"
   db_root_name             = var.db_root_name
@@ -888,8 +904,7 @@ module "rds" {
   db_monitoring_role_arn                   = module.iam_rds_role.iam_role_arn
   db_monitoring_interval                   = var.db_monitoring_interval
   db_auto_minor_version_upgrade            = var.db_auto_minor_version_upgrade
-  isolated_1a_subnet_id                    = module.isolated_1a_subnet.subnet_id
-  isolated_1c_subnet_id                    = module.isolated_1c_subnet.subnet_id
+  subnet_ids                               = [module.isolated_1a_subnet.subnet_id, module.isolated_1c_subnet.subnet_id]
   backup_tag_key                           = var.backup_tag_key
   backup_tag_value                         = "true"
   db_secret_rotate                         = var.db_secret_rotate
@@ -911,7 +926,7 @@ module "iam_backup_role" {
   project                        = var.project
   environment                    = var.environment
   resourcetype                   = var.service_rsrc_type_backup
-  iam_role_principal_identifiers = "backup.amazonaws.com"
+  iam_role_principal_identifiers = ["backup.amazonaws.com"]
 }
 
 module "iam_backup_backup_policy_attach" {
@@ -965,7 +980,7 @@ module "acm" {
   environment       = var.environment
   route53_zone_name = var.naked_domain
   acm_domain_name   = var.naked_domain
-  acm_sans          = "*.${var.naked_domain}"
+  acm_sans          = ["*.${var.naked_domain}"]
 }
 
 module "acm_self_signed" {
@@ -982,25 +997,25 @@ module "codeconnection" {
 }
 
 module "iam_codebuild_logs_policy" {
-  count             = var.deployment_strategy != null ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_build}-logs"
-  action_list       = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
-  resource_arn_list = ["*"]
+  count         = var.deployment_strategy != null ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_build}-logs"
+  api_actions   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+  resource_arns = ["*"]
 }
 
 module "iam_codebuild_bucket_policy" {
-  count             = var.deployment_strategy != null ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_build}-bucket"
-  action_list       = ["s3:GetObject", "s3:GetObjectVersion", "s3:PutObject", "s3:GetBucketAcl", "s3:GetBucketLocation"]
-  resource_arn_list = ["*"]
+  count         = var.deployment_strategy != null ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_build}-bucket"
+  api_actions   = ["s3:GetObject", "s3:GetObjectVersion", "s3:PutObject", "s3:GetBucketAcl", "s3:GetBucketLocation"]
+  resource_arns = ["*"]
 }
 
 
@@ -1011,20 +1026,20 @@ module "iam_codebuild_ecr_policy" {
   project      = var.project
   environment  = var.environment
   resourcetype = "${var.service_rsrc_type_build}-ecr"
-  action_list = ["ecr:BatchCheckLayerAvailability", "ecr:BatchGetImage", "ecr:CompleteLayerUpload", "ecr:GetDownloadUrlForLayer",
+  api_actions = ["ecr:BatchCheckLayerAvailability", "ecr:BatchGetImage", "ecr:CompleteLayerUpload", "ecr:GetDownloadUrlForLayer",
   "ecr:GetAuthorizationToken", "ecr:InitiateLayerUpload", "ecr:PutImage", "ecr:UploadLayerPart"]
-  resource_arn_list = ["*"]
+  resource_arns = ["*"]
 }
 
 module "iam_codebuild_vpc_policy" {
-  count             = var.deployment_strategy != null ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_build}-vpc"
-  action_list       = ["ec2:CreateNetworkInterface", "ec2:DescribeDhcpOptions", "ec2:DescribeNetworkInterfaces", "ec2:DeleteNetworkInterface", "ec2:DescribeSubnets", "ec2:DescribeSecurityGroups", "ec2:DescribeVpcs"]
-  resource_arn_list = ["*"]
+  count         = var.deployment_strategy != null ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_build}-vpc"
+  api_actions   = ["ec2:CreateNetworkInterface", "ec2:DescribeDhcpOptions", "ec2:DescribeNetworkInterfaces", "ec2:DeleteNetworkInterface", "ec2:DescribeSubnets", "ec2:DescribeSecurityGroups", "ec2:DescribeVpcs"]
+  resource_arns = ["*"]
 }
 
 module "iam_codebuild_subnet_policy" {
@@ -1034,8 +1049,8 @@ module "iam_codebuild_subnet_policy" {
   project            = var.project
   environment        = var.environment
   resourcetype       = "${var.service_rsrc_type_build}-subnet"
-  action_list        = ["ec2:CreateNetworkInterfacePermission"]
-  resource_arn_list  = ["arn:aws:ec2:${var.aws_region}:${module.account.id}:network-interface/*"]
+  api_actions        = ["ec2:CreateNetworkInterfacePermission"]
+  resource_arns      = ["arn:aws:ec2:${var.aws_region}:${module.account.id}:network-interface/*"]
   condition_test     = "ArnEquals"
   condition_variable = "ec2:Subnet"
   condition_values   = ["arn:aws:ec2:${var.aws_region}:${module.account.id}:subnet/${module.private_1a_subnet.subnet_id}", "arn:aws:ec2:${var.aws_region}:${module.account.id}:subnet/${module.private_1c_subnet.subnet_id}"]
@@ -1048,7 +1063,7 @@ module "iam_codebuild_role" {
   project                        = var.project
   environment                    = var.environment
   resourcetype                   = var.service_rsrc_type_build
-  iam_role_principal_identifiers = "codebuild.amazonaws.com"
+  iam_role_principal_identifiers = ["codebuild.amazonaws.com"]
 }
 
 module "iam_codebuild_role_logs_policy_attach" {
@@ -1139,7 +1154,7 @@ module "iam_codedeploy_role" {
   project                        = var.project
   environment                    = var.environment
   resourcetype                   = var.service_rsrc_type_deploy
-  iam_role_principal_identifiers = "codedeploy.amazonaws.com"
+  iam_role_principal_identifiers = ["codedeploy.amazonaws.com"]
 }
 
 module "iam_codedeploy_role_policy_attach" {
@@ -1178,102 +1193,102 @@ module "s3_artifact_bucket" {
 }
 
 module "iam_codepipeline_bucket_policy" {
-  count             = var.deployment_strategy != null ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_pipeline}-bucket"
-  action_list       = ["s3:GetBucketVersioning", "s3:GetBucketAcl", "s3:GetBucketLocation"]
-  resource_arn_list = [module.s3_artifact_bucket[0].bucket_arn]
+  count         = var.deployment_strategy != null ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_pipeline}-bucket"
+  api_actions   = ["s3:GetBucketVersioning", "s3:GetBucketAcl", "s3:GetBucketLocation"]
+  resource_arns = [module.s3_artifact_bucket[0].bucket_arn]
 }
 
 module "iam_codepipeline_object_policy" {
-  count             = var.deployment_strategy != null ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_pipeline}-object"
-  action_list       = ["s3:PutObject", "s3:PutObjectAcl", "s3:GetObject", "s3:GetObjectVersion", "s3:PutObjectTagging", "s3:GetObjectTagging", "s3:GetObjectVersionTagging"]
-  resource_arn_list = ["${module.s3_artifact_bucket[0].bucket_arn}/*"]
+  count         = var.deployment_strategy != null ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_pipeline}-object"
+  api_actions   = ["s3:PutObject", "s3:PutObjectAcl", "s3:GetObject", "s3:GetObjectVersion", "s3:PutObjectTagging", "s3:GetObjectTagging", "s3:GetObjectVersionTagging"]
+  resource_arns = ["${module.s3_artifact_bucket[0].bucket_arn}/*"]
 }
 
 module "iam_codepipeline_connection_policy" {
-  count             = var.deployment_strategy != null ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_pipeline}-connection"
-  action_list       = ["codestar-connections:UseConnection"]
-  resource_arn_list = [module.codeconnection[0].code_connection_arn]
+  count         = var.deployment_strategy != null ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_pipeline}-connection"
+  api_actions   = ["codestar-connections:UseConnection"]
+  resource_arns = [module.codeconnection[0].code_connection_arn]
 }
 
 module "iam_codepipeline_build_policy" {
-  count             = var.deployment_strategy != null ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_pipeline}-build"
-  action_list       = ["codebuild:BatchGetBuilds", "codebuild:StartBuild", "codebuild:BatchGetBuildBatches", "codebuild:StartBuildBatch"]
-  resource_arn_list = [module.codebuild_app[0].codebuild_project_arn]
+  count         = var.deployment_strategy != null ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_pipeline}-build"
+  api_actions   = ["codebuild:BatchGetBuilds", "codebuild:StartBuild", "codebuild:BatchGetBuildBatches", "codebuild:StartBuildBatch"]
+  resource_arns = [module.codebuild_app[0].codebuild_project_arn]
 }
 
 module "iam_codepipeline_deploy_deployment_policy" {
-  count             = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_pipeline}-deploy-deployment"
-  action_list       = ["codedeploy:CreateDeployment", "codedeploy:GetDeployment"]
-  resource_arn_list = [module.codedeploy[0].codedeploy_group_arn]
+  count         = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_pipeline}-deploy-deployment"
+  api_actions   = ["codedeploy:CreateDeployment", "codedeploy:GetDeployment"]
+  resource_arns = [module.codedeploy[0].codedeploy_group_arn]
 }
 
 module "iam_codepipeline_application_policy" {
-  count             = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_pipeline}-deploy-application"
-  action_list       = ["codedeploy:GetApplication", "codedeploy:GetApplicationRevision", "codedeploy:RegisterApplicationRevision"]
-  resource_arn_list = [module.codedeploy[0].codedeploy_app_arn, "${module.codedeploy[0].codedeploy_app_arn}/*"]
+  count         = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_pipeline}-deploy-application"
+  api_actions   = ["codedeploy:GetApplication", "codedeploy:GetApplicationRevision", "codedeploy:RegisterApplicationRevision"]
+  resource_arns = [module.codedeploy[0].codedeploy_app_arn, "${module.codedeploy[0].codedeploy_app_arn}/*"]
 }
 
 module "iam_codepipeline_deploy_config_policy" {
-  count             = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_pipeline}-deploy-config"
-  action_list       = ["codedeploy:GetDeploymentConfig"]
-  resource_arn_list = ["*"]
+  count         = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_pipeline}-deploy-config"
+  api_actions   = ["codedeploy:GetDeploymentConfig"]
+  resource_arns = ["*"]
 }
 
 module "iam_codepipeline_ecs_task_policy" {
-  count             = var.deployment_strategy != null ? 1 : 0
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_pipeline}-ecs-task"
-  action_list       = ["ecs:DescribeTaskDefinition", "ecs:RegisterTaskDefinition"]
-  resource_arn_list = ["*"]
+  count         = var.deployment_strategy != null ? 1 : 0
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_pipeline}-ecs-task"
+  api_actions   = ["ecs:DescribeTaskDefinition", "ecs:RegisterTaskDefinition"]
+  resource_arns = ["*"]
 }
 
 module "iam_codepipeline_ecs_service_policy" {
-  count             = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 0 : 1
-  source            = "../../modules/iampolicy"
-  system            = var.system
-  project           = var.project
-  environment       = var.environment
-  resourcetype      = "${var.service_rsrc_type_pipeline}-ecs-service"
-  action_list       = ["ecs:DescribeServices", "ecs:UpdateService"]
-  resource_arn_list = ["${module.ecs_cluster.ecs_cluster_arn}/*"]
+  count         = var.deployment_strategy == "codedeploy_blue_green_deployment" ? 0 : 1
+  source        = "../../modules/iampolicy"
+  system        = var.system
+  project       = var.project
+  environment   = var.environment
+  resourcetype  = "${var.service_rsrc_type_pipeline}-ecs-service"
+  api_actions   = ["ecs:DescribeServices", "ecs:UpdateService"]
+  resource_arns = ["${module.ecs_cluster.ecs_cluster_arn}/*"]
 }
 
 module "iam_codepipeline_ecs_tag_policy" {
@@ -1283,8 +1298,8 @@ module "iam_codepipeline_ecs_tag_policy" {
   project            = var.project
   environment        = var.environment
   resourcetype       = "${var.service_rsrc_type_pipeline}-ecs-tag"
-  action_list        = ["ecs:TagResource"]
-  resource_arn_list  = ["arn:aws:ecs:*:${module.account.id}:task-definition/${module.ecs_task.ecs_task_family}:*"]
+  api_actions        = ["ecs:TagResource"]
+  resource_arns      = ["arn:aws:ecs:*:${module.account.id}:task-definition/${module.ecs_task.ecs_task_family}:*"]
   condition_test     = "StringEquals"
   condition_variable = "ecs:CreateAction"
   condition_values   = ["RegisterTaskDefinition"]
@@ -1297,8 +1312,8 @@ module "iam_codepipeline_passrole_policy" {
   project            = var.project
   environment        = var.environment
   resourcetype       = "${var.service_rsrc_type_pipeline}-passrole"
-  action_list        = ["iam:PassRole"]
-  resource_arn_list  = ["arn:aws:iam::${module.account.id}:role/*"]
+  api_actions        = ["iam:PassRole"]
+  resource_arns      = ["arn:aws:iam::${module.account.id}:role/*"]
   condition_test     = "StringEquals"
   condition_variable = "iam:PassedToService"
   condition_values   = ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
@@ -1311,7 +1326,7 @@ module "iam_codepipeline_role" {
   project                        = var.project
   environment                    = var.environment
   resourcetype                   = var.service_rsrc_type_pipeline
-  iam_role_principal_identifiers = "codepipeline.amazonaws.com"
+  iam_role_principal_identifiers = ["codepipeline.amazonaws.com"]
 }
 
 module "iam_codepipeline_connection_policy_attach" {
