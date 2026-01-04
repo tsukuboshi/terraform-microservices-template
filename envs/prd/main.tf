@@ -485,14 +485,13 @@ module "vpce_sg_egress_rule_all" {
 }
 
 module "alb" {
-  source                 = "../../modules/alb"
-  system                 = var.system
-  project                = var.project
-  environment            = var.environment
-  deletion_protection    = var.deletion_protection
-  security_group_id      = module.alb_sg.security_group_id
-  subnet_1a_id           = module.public_1a_subnet.subnet_id
-  subnet_1c_id           = module.public_1c_subnet.subnet_id
+  source              = "../../modules/alb"
+  system              = var.system
+  project             = var.project
+  environment         = var.environment
+  deletion_protection = var.deletion_protection
+  subnet_ids          = [module.public_1a_subnet.subnet_id, module.public_1c_subnet.subnet_id]
+  security_group_ids  = [module.alb_sg.security_group_id]
   has_access_logs        = true
   access_log_bucket_name = module.s3_alb_log_bucket.bucket_name
   access_log_prefix      = var.access_log_prefix
@@ -817,9 +816,8 @@ module "ecs_service" {
   ecs_container_port           = var.app_container_port
   associate_public_ip_address  = var.has_public_ip_to_container
   deployment_strategy          = var.deployment_strategy
-  subnet_1a_id                 = module.private_1a_subnet.subnet_id
-  subnet_1c_id                 = module.private_1c_subnet.subnet_id
-  security_group_id            = module.ecs_sg.security_group_id
+  subnet_ids                   = [module.private_1a_subnet.subnet_id, module.private_1c_subnet.subnet_id]
+  security_group_ids           = [module.ecs_sg.security_group_id]
   target_group_arn             = module.alb_blue_tg.alb_tg_arn
   ecs_task_definition_arn      = module.ecs_task.ecs_task_arn
   alternate_target_group_arn   = var.deployment_strategy == "ecs_blue_green_deployment" ? module.alb_green_tg[0].alb_tg_arn : null
@@ -889,7 +887,7 @@ module "rds" {
   rds_engine_major_version = var.rds_engine_major_version
   rds_engine_minor_version = var.rds_engine_minor_version
   rds_port                 = var.rds_port
-  security_group_id        = module.rds_sg.security_group_id
+  security_group_ids       = [module.rds_sg.security_group_id]
   db_instance_class        = var.db_instance_class
   db_name                  = "${var.system}${var.project}${var.environment}db"
   db_root_name             = var.db_root_name
@@ -906,8 +904,7 @@ module "rds" {
   db_monitoring_role_arn                   = module.iam_rds_role.iam_role_arn
   db_monitoring_interval                   = var.db_monitoring_interval
   db_auto_minor_version_upgrade            = var.db_auto_minor_version_upgrade
-  isolated_1a_subnet_id                    = module.isolated_1a_subnet.subnet_id
-  isolated_1c_subnet_id                    = module.isolated_1c_subnet.subnet_id
+  subnet_ids                               = [module.isolated_1a_subnet.subnet_id, module.isolated_1c_subnet.subnet_id]
   backup_tag_key                           = var.backup_tag_key
   backup_tag_value                         = "true"
   db_secret_rotate                         = var.db_secret_rotate

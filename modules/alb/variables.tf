@@ -20,16 +20,12 @@ variable "deletion_protection" {
   type = bool
 }
 
-variable "subnet_1a_id" {
-  type = string
+variable "subnet_ids" {
+  type = list(string)
 }
 
-variable "subnet_1c_id" {
-  type = string
-}
-
-variable "security_group_id" {
-  type = string
+variable "security_group_ids" {
+  type = list(string)
 }
 
 variable "has_access_logs" {

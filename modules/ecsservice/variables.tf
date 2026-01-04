@@ -20,20 +20,16 @@ variable "resourcetype" {
   type = string
 }
 
-variable "subnet_1a_id" {
-  type = string
-}
-
-variable "subnet_1c_id" {
-  type = string
+variable "subnet_ids" {
+  type = list(string)
 }
 
 variable "associate_public_ip_address" {
   type = bool
 }
 
-variable "security_group_id" {
-  type = string
+variable "security_group_ids" {
+  type = list(string)
 }
 
 variable "target_group_arn" {

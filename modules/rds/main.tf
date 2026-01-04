@@ -11,7 +11,7 @@ resource "aws_db_instance" "tf_db_instance" {
   identifier = "${var.system}-${var.project}-${var.environment}-db-instance"
 
   db_subnet_group_name   = aws_db_subnet_group.tf_db_subnetgroup.name
-  vpc_security_group_ids = [var.security_group_id]
+  vpc_security_group_ids = var.security_group_ids
   publicly_accessible    = false
   port                   = var.rds_port
 
@@ -72,11 +72,8 @@ resource "terraform_data" "tf_db_secret_rotation_disable" {
 #
 # ====================
 resource "aws_db_subnet_group" "tf_db_subnetgroup" {
-  name = "${var.system}-${var.project}-${var.environment}-db-subnetgroup"
-  subnet_ids = [
-    var.isolated_1a_subnet_id,
-    var.isolated_1c_subnet_id
-  ]
+  name       = "${var.system}-${var.project}-${var.environment}-db-subnetgroup"
+  subnet_ids = var.subnet_ids
 
   tags = {
     Name = "${var.system}-${var.project}-${var.environment}-db-subnetgroup"

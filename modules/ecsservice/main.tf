@@ -17,11 +17,8 @@ resource "aws_ecs_service" "tf_ecs_service" {
 
   network_configuration {
     assign_public_ip = var.associate_public_ip_address
-    security_groups  = [var.security_group_id]
-    subnets = [
-      var.subnet_1a_id,
-      var.subnet_1c_id
-    ]
+    security_groups  = var.security_group_ids
+    subnets          = var.subnet_ids
   }
 
   dynamic "deployment_configuration" {

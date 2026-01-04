@@ -40,8 +40,8 @@ variable "rds_engine_minor_version" {
   type = string
 }
 
-variable "security_group_id" {
-  type = string
+variable "security_group_ids" {
+  type = list(string)
 }
 
 variable "db_instance_class" {
@@ -110,12 +110,8 @@ variable "db_auto_minor_version_upgrade" {
   type = bool
 }
 
-variable "isolated_1a_subnet_id" {
-  type = string
-}
-
-variable "isolated_1c_subnet_id" {
-  type = string
+variable "subnet_ids" {
+  type = list(string)
 }
 
 variable "backup_tag_key" {
