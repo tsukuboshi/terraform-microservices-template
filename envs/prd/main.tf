@@ -187,7 +187,7 @@ module "private_1a_ngw_route" {
 }
 
 module "public_1c_natgateway" {
-  count        = var.multi_az ? 1 : 0
+  count        = var.az_count >= 2 ? 1 : 0
   source       = "../../modules/natgateway"
   system       = var.system
   project      = var.project
@@ -200,7 +200,7 @@ module "public_1c_natgateway" {
 module "private_1c_ngw_route" {
   source                 = "../../modules/route"
   route_table_id         = module.private_1c_routetable.route_table_id
-  nat_gateway_id         = var.multi_az ? module.public_1c_natgateway[0].nat_gateway_id : module.public_1a_natgateway.nat_gateway_id
+  nat_gateway_id         = var.az_count >= 2 ? module.public_1c_natgateway[0].nat_gateway_id : module.public_1a_natgateway.nat_gateway_id
   destination_cidr_block = "0.0.0.0/0"
 }
 
@@ -812,7 +812,7 @@ module "ecs_service" {
   environment                  = var.environment
   resourcetype                 = var.service_rsrc_type_ecs
   ecs_cluster_arn              = module.ecs_cluster.ecs_cluster_arn
-  ecs_service_desired_count    = var.ecs_service_desired_count
+  ecs_desired_count            = var.task_count_per_az * var.az_count
   ecs_container_name           = var.app_container_name
   ecs_container_port           = var.app_container_port
   associate_public_ip_address  = var.has_public_ip_to_container
@@ -884,7 +884,7 @@ module "rds" {
   project                  = var.project
   environment              = var.environment
   deletion_protection      = var.deletion_protection
-  multi_az                 = var.multi_az
+  multi_az                 = var.az_count >= 2
   rds_engine               = var.rds_engine
   rds_engine_major_version = var.rds_engine_major_version
   rds_engine_minor_version = var.rds_engine_minor_version

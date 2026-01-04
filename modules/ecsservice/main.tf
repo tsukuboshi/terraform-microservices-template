@@ -8,7 +8,7 @@ resource "aws_ecs_service" "tf_ecs_service" {
   name                              = "${var.system}-${var.project}-${var.environment}-${var.resourcetype}-service"
   cluster                           = var.ecs_cluster_arn
   task_definition                   = var.ecs_task_definition_arn
-  desired_count                     = var.ecs_service_desired_count
+  desired_count                     = var.ecs_desired_count
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0"
   enable_execute_command            = true

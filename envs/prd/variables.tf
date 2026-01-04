@@ -55,12 +55,6 @@ variable "environment" {
   type        = string
 }
 
-variable "multi_az" {
-  description = "マルチAZ配置を有効にするかどうか"
-  default     = true
-  type        = bool
-}
-
 variable "deletion_protection" {
   description = "リソースの削除保護を有効にするかどうか"
   default     = true
@@ -83,6 +77,17 @@ variable "sub_domain" {
   description = "サブドメイン名"
   default     = "test"
   type        = string
+}
+
+variable "az_count" {
+  description = "使用するアベイラビリティゾーンの数（1: シングルAZ, 2: マルチAZ）"
+  default     = 2
+  type        = number
+
+  validation {
+    condition     = contains([1, 2], var.az_count)
+    error_message = "az_count must be 1 or 2"
+  }
 }
 
 variable "service_rsrc_type_alb" {
@@ -415,9 +420,9 @@ variable "app_container_port" {
   type        = number
 }
 
-variable "ecs_service_desired_count" {
-  description = "ECSサービスの所望数"
-  default     = 2
+variable "task_count_per_az" {
+  description = "アベイラビリティゾーンあたりのECSタスク数"
+  default     = 1
   type        = number
 }
 

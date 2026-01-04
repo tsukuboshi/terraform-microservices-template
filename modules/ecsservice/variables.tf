@@ -44,7 +44,7 @@ variable "ecs_cluster_arn" {
   type = string
 }
 
-variable "ecs_service_desired_count" {
+variable "ecs_desired_count" {
   type = number
 }
 

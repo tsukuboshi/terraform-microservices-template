@@ -175,6 +175,7 @@
 | <a name="input_availability_zone_1a"></a> [availability\_zone\_1a](#input\_availability\_zone\_1a) | 使用するアベイラビリティゾーン1a | `string` | `"ap-northeast-1a"` | no |
 | <a name="input_availability_zone_1c"></a> [availability\_zone\_1c](#input\_availability\_zone\_1c) | 使用するアベイラビリティゾーン1c | `string` | `"ap-northeast-1c"` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWSのリージョン。デフォルトは東京リージョン | `string` | `"ap-northeast-1"` | no |
+| <a name="input_az_count"></a> [az\_count](#input\_az\_count) | 使用するアベイラビリティゾーンの数（1: シングルAZ, 2: マルチAZ） | `number` | `2` | no |
 | <a name="input_az_short_name_1a"></a> [az\_short\_name\_1a](#input\_az\_short\_name\_1a) | アベイラビリティゾーン1aの短縮名 | `string` | `"1a"` | no |
 | <a name="input_az_short_name_1c"></a> [az\_short\_name\_1c](#input\_az\_short\_name\_1c) | アベイラビリティゾーン1cの短縮名 | `string` | `"1c"` | no |
 | <a name="input_backup_delete_after_days"></a> [backup\_delete\_after\_days](#input\_backup\_delete\_after\_days) | バックアップの保持期間（日数） | `number` | `7` | no |
@@ -205,7 +206,6 @@
 | <a name="input_deployment_config_name"></a> [deployment\_config\_name](#input\_deployment\_config\_name) | CodeDeployのデプロイ設定名 | `string` | `"CodeDeployDefault.ECSAllAtOnce"` | no |
 | <a name="input_deployment_strategy"></a> [deployment\_strategy](#input\_deployment\_strategy) | デプロイ戦略 (null: CI/CDなし, ecs\_rolling\_update: ECSローリングアップデート, ecs\_blue\_green\_deployment: ECSネイティブのブルーグリーン, codedeploy\_blue\_green\_deployment: CodeDeployブルーグリーン) | `string` | `null` | no |
 | <a name="input_desktop_app_name"></a> [desktop\_app\_name](#input\_desktop\_app\_name) | ローカル開発で使用するデスクトップアプリケーション名（null: 使用しない, docker\_desktop: Docker Desktop, rancher\_desktop: Rancher Desktop） | `string` | `null` | no |
-| <a name="input_ecs_service_desired_count"></a> [ecs\_service\_desired\_count](#input\_ecs\_service\_desired\_count) | ECSサービスの所望数 | `number` | `2` | no |
 | <a name="input_ecs_task_cpu"></a> [ecs\_task\_cpu](#input\_ecs\_task\_cpu) | ECSタスクのCPU | `number` | `2048` | no |
 | <a name="input_ecs_task_memory"></a> [ecs\_task\_memory](#input\_ecs\_task\_memory) | ECSタスクのメモリ | `number` | `4096` | no |
 | <a name="input_enable_approval_stage"></a> [enable\_approval\_stage](#input\_enable\_approval\_stage) | CodePipelineの承認ステージを有効にするかどうか | `bool` | `true` | no |
@@ -225,7 +225,6 @@
 | <a name="input_has_public_ip_to_container"></a> [has\_public\_ip\_to\_container](#input\_has\_public\_ip\_to\_container) | コンテナにパブリックIPを割り当てるかどうか | `bool` | `false` | no |
 | <a name="input_isolated_subnet_1a_cidr_block"></a> [isolated\_subnet\_1a\_cidr\_block](#input\_isolated\_subnet\_1a\_cidr\_block) | 分離サブネット1aのCIDRブロック | `string` | `"10.0.4.0/24"` | no |
 | <a name="input_isolated_subnet_1c_cidr_block"></a> [isolated\_subnet\_1c\_cidr\_block](#input\_isolated\_subnet\_1c\_cidr\_block) | 分離サブネット1cのCIDRブロック | `string` | `"10.0.5.0/24"` | no |
-| <a name="input_multi_az"></a> [multi\_az](#input\_multi\_az) | マルチAZ配置を有効にするかどうか | `bool` | `true` | no |
 | <a name="input_naked_domain"></a> [naked\_domain](#input\_naked\_domain) | ベースドメイン名 | `string` | `null` | no |
 | <a name="input_network_rsrc_type_isolated"></a> [network\_rsrc\_type\_isolated](#input\_network\_rsrc\_type\_isolated) | 分離ネットワークリソースタイプの識別子 | `string` | `"isolated"` | no |
 | <a name="input_network_rsrc_type_private"></a> [network\_rsrc\_type\_private](#input\_network\_rsrc\_type\_private) | プライベートネットワークリソースタイプの識別子 | `string` | `"private"` | no |
@@ -259,6 +258,7 @@
 | <a name="input_service_rsrc_type_rds"></a> [service\_rsrc\_type\_rds](#input\_service\_rsrc\_type\_rds) | RDSリソースタイプの識別子 | `string` | `"rds"` | no |
 | <a name="input_sub_domain"></a> [sub\_domain](#input\_sub\_domain) | サブドメイン名 | `string` | `"test"` | no |
 | <a name="input_system"></a> [system](#input\_system) | システム名 | `string` | `"sample"` | no |
+| <a name="input_task_count_per_az"></a> [task\_count\_per\_az](#input\_task\_count\_per\_az) | アベイラビリティゾーンあたりのECSタスク数 | `number` | `1` | no |
 | <a name="input_versioning_enabled"></a> [versioning\_enabled](#input\_versioning\_enabled) | S3バケットのバージョニングを有効にするかどうか | `bool` | `false` | no |
 | <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | VPCのCIDRブロック | `string` | `"10.0.0.0/16"` | no |
 | <a name="input_waf_default_action_block_mode"></a> [waf\_default\_action\_block\_mode](#input\_waf\_default\_action\_block\_mode) | WAFのデフォルトアクションをブロックにするかどうか | `bool` | `true` | no |
