@@ -4,8 +4,14 @@
 #
 # ====================
 
-variable "aws_region" {}
+variable "aws_region" {
+  type = string
+}
 
-variable "ecr_repository_arn" {}
+variable "ecr_repository_arn" {
+  type = string
+}
 
-variable "ecr_repository_url" {}
+variable "ecr_repository_url" {
+  type = string
+}

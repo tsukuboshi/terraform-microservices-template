@@ -4,22 +4,42 @@
 #
 # ====================
 
-variable "aws_region" {}
+variable "aws_region" {
+  type = string
+}
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "image_name" {}
+variable "image_name" {
+  type = string
+}
 
-variable "image_tag" {}
+variable "image_tag" {
+  type = string
+}
 
-variable "container_name" {}
+variable "container_name" {
+  type = string
+}
 
-variable "dockerfile_path" {}
+variable "dockerfile_path" {
+  type = string
+}
 
-variable "ecr_login_id" {}
+variable "ecr_login_id" {
+  type = string
+}
 
-variable "ecr_repository_url" {}
+variable "ecr_repository_url" {
+  type = string
+}

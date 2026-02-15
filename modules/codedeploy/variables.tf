@@ -4,26 +4,50 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "codedeploy_role_arn" {}
+variable "codedeploy_role_arn" {
+  type = string
+}
 
-variable "ecs_cluster_name" {}
+variable "ecs_cluster_name" {
+  type = string
+}
 
-variable "ecs_service_name" {}
+variable "ecs_service_name" {
+  type = string
+}
 
-variable "blue_listener_arn" {}
+variable "blue_listener_arn" {
+  type = string
+}
 
-variable "green_listener_arn" {}
+variable "green_listener_arn" {
+  type = string
+}
 
-variable "blue_tg_name" {}
+variable "blue_tg_name" {
+  type = string
+}
 
-variable "green_tg_name" {}
+variable "green_tg_name" {
+  type = string
+}
 
-variable "deployment_config_name" {}
+variable "deployment_config_name" {
+  type = string
+}

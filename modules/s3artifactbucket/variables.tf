@@ -4,14 +4,26 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "account_id" {}
+variable "account_id" {
+  type = string
+}
 
-variable "force_destroy" {}
+variable "force_destroy" {
+  type = bool
+}
 
-variable "versioning_enabled" {}
+variable "versioning_enabled" {
+  type = bool
+}

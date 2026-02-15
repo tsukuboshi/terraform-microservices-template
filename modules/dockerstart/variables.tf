@@ -4,4 +4,6 @@
 #
 # ====================
 
-variable "desktop_app_name" {}
+variable "desktop_app_name" {
+  type = string
+}

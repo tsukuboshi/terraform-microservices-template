@@ -8,7 +8,7 @@ resource "aws_ecs_service" "tf_ecs_service" {
   name                              = "${var.system}-${var.project}-${var.environment}-${var.resourcetype}-service"
   cluster                           = var.ecs_cluster_arn
   task_definition                   = var.ecs_task_definition_arn
-  desired_count                     = var.ecs_service_desired_count
+  desired_count                     = var.ecs_desired_count
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0"
   enable_execute_command            = true
@@ -17,11 +17,8 @@ resource "aws_ecs_service" "tf_ecs_service" {
 
   network_configuration {
     assign_public_ip = var.associate_public_ip_address
-    security_groups  = [var.security_group_id]
-    subnets = [
-      var.subnet_1a_id,
-      var.subnet_1c_id
-    ]
+    security_groups  = var.security_group_ids
+    subnets          = var.subnet_ids
   }
 
   dynamic "deployment_configuration" {

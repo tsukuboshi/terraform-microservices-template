@@ -16,9 +16,9 @@ data "aws_iam_policy_document" "tf_iam_policy_document" {
     effect = var.effect
     principals {
       type        = var.principals_type
-      identifiers = var.principals_identifiers_list
+      identifiers = var.principal_identifiers
     }
-    actions   = var.action_list
-    resources = var.resource_arn_list
+    actions   = var.api_actions
+    resources = var.resource_arns
   }
 }

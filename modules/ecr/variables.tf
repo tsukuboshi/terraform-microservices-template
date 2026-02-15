@@ -4,16 +4,30 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "force_destroy" {}
+variable "force_destroy" {
+  type = bool
+}
 
-variable "allow_latest_tag" {}
+variable "allow_latest_tag" {
+  type = bool
+}
 
-variable "image_count_lifecycle_policy" {}
+variable "image_count_lifecycle_policy" {
+  type = number
+}

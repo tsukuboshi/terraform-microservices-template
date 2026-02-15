@@ -4,16 +4,30 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "load_balancer_arn" {}
+variable "load_balancer_arn" {
+  type = string
+}
 
-variable "http_port" {}
+variable "http_port" {
+  type = number
+}
 
-variable "redirect_port" {}
+variable "redirect_port" {
+  type = number
+}

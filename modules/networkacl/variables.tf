@@ -4,16 +4,30 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "vpc_id" {}
+variable "vpc_id" {
+  type = string
+}
 
-variable "subnet_1a_id" {}
+variable "subnet_1a_id" {
+  type = string
+}
 
-variable "subnet_1c_id" {}
+variable "subnet_1c_id" {
+  type = string
+}

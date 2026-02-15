@@ -4,10 +4,18 @@
 #
 # ====================
 
-variable "route53_zone_name" {}
+variable "route53_zone_name" {
+  type = string
+}
 
-variable "route53_record_name" {}
+variable "route53_record_name" {
+  type = string
+}
 
-variable "alb_dns_name" {}
+variable "alb_dns_name" {
+  type = string
+}
 
-variable "alb_zone_id" {}
+variable "alb_zone_id" {
+  type = string
+}

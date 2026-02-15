@@ -4,18 +4,26 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "igw_id" {}
+variable "igw_id" {
+  type = string
+}
 
-variable "subnet_id" {}
-
-variable "route_table_ids" {
-  type = list(string)
+variable "subnet_id" {
+  type = string
 }

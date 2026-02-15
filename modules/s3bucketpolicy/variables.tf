@@ -4,18 +4,34 @@
 #
 # ====================
 
-variable "bucket_name" {}
+variable "bucket_name" {
+  type = string
+}
 
-variable "bucket_id" {}
+variable "bucket_id" {
+  type = string
+}
 
-variable "account_id" {}
+variable "account_id" {
+  type = string
+}
 
-variable "effect" {}
+variable "effect" {
+  type = string
+}
 
-variable "principals_type" {}
+variable "principals_type" {
+  type = string
+}
 
-variable "principals_identifiers_list" {}
+variable "principal_identifiers" {
+  type = list(string)
+}
 
-variable "action_list" {}
+variable "api_actions" {
+  type = list(string)
+}
 
-variable "resource_arn_list" {}
+variable "resource_arns" {
+  type = list(string)
+}

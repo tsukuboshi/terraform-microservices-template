@@ -4,4 +4,6 @@
 #
 # ====================
 
-variable "code_connection_name" {}
+variable "code_connection_name" {
+  type = string
+}

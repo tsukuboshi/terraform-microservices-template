@@ -4,34 +4,54 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "vpc_id" {}
+variable "vpc_id" {
+  type = string
+}
 
-variable "alb_target_type" {}
+variable "alb_target_type" {
+  type = string
+}
 
-variable "alb_lsnr_https_arn" {}
+variable "alb_lsnr_https_arn" {
+  type = string
+}
 
-variable "alb_lsnr_rule_priority" {}
+variable "alb_lsnr_rule_priority" {
+  type = number
+}
 
 variable "has_host_header" {
+  type    = bool
   default = false
 }
 
 variable "has_path_pattern" {
+  type    = bool
   default = false
 }
 
-variable "alb_lsnr_rule_host_header" {
+variable "alb_lsnr_rule_host_header_values" {
+  type    = list(string)
   default = null
 }
 
-variable "alb_lsnr_rule_path_pattern" {
+variable "alb_lsnr_rule_path_pattern_values" {
+  type    = list(string)
   default = null
 }

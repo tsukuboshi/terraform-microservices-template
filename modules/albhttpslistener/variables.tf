@@ -4,18 +4,34 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "load_balancer_arn" {}
+variable "load_balancer_arn" {
+  type = string
+}
 
-variable "https_port" {}
+variable "https_port" {
+  type = number
+}
 
-variable "acm_alb_cert_arn" {}
+variable "acm_alb_cert_arn" {
+  type = string
+}
 
-variable "acm_alb_cert_valid_id" {}
+variable "acm_alb_cert_valid_id" {
+  type = string
+}

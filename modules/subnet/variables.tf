@@ -4,20 +4,35 @@
 #
 # ====================
 
-variable "system" {}
+variable "system" {
+  type = string
+}
 
-variable "project" {}
+variable "project" {
+  type = string
+}
 
-variable "environment" {}
+variable "environment" {
+  type = string
+}
 
-variable "resourcetype" {}
+variable "resourcetype" {
+  type = string
+}
 
-variable "vpc_id" {}
+variable "vpc_id" {
+  type = string
+}
 
-variable "subnet_cidr_block" {}
+variable "subnet_cidr_block" {
+  type = string
+}
 
 variable "subnet_map_public_ip_on_launch" {
+  type    = bool
   default = false
 }
 
-variable "subnet_availability_zone" {}
+variable "subnet_availability_zone" {
+  type = string
+}
